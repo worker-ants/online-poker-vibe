@@ -203,8 +203,8 @@ export class RoomService {
       // If no players left, delete room and associated game records
       if (room.roomPlayers.length === 0) {
         await queryRunner.commitTransaction();
-        // deleteByRoom manages its own transaction, run outside ours
-        await this.gameService.deleteByRoom(roomId);
+        // deleteInProgressGamesByRoom manages its own transaction, run outside ours
+        await this.gameService.deleteInProgressGamesByRoom(roomId);
         const roomToRemove = await this.roomRepository.findOne({
           where: { id: roomId },
         });

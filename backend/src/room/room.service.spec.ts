@@ -43,7 +43,7 @@ const mockRoomPlayerRepository = {
 };
 
 const mockGameService = {
-  deleteByRoom: jest.fn(() => Promise.resolve()),
+  deleteInProgressGamesByRoom: jest.fn(() => Promise.resolve()),
 };
 
 const mockPlayerService = {
@@ -284,7 +284,7 @@ describe('RoomService', () => {
       await service.leaveRoom('room-1', 'p1');
 
       expect(mockQueryRunner.manager.remove).toHaveBeenCalledWith(roomPlayer);
-      expect(mockGameService.deleteByRoom).toHaveBeenCalledWith('room-1');
+      expect(mockGameService.deleteInProgressGamesByRoom).toHaveBeenCalledWith('room-1');
       expect(mockRoomRepository.remove).toHaveBeenCalled();
     });
 

@@ -1,0 +1,103 @@
+{
+  "timestamp": "2026-03-19T08:10:52.678170",
+  "files": [
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/CLAUDE.md",
+      "change_type": "Review",
+      "file_extension": "md"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/game.entity.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/game.service.spec.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/game.service.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/hooks/useGameStore.spec.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/history/history.md",
+      "change_type": "Review",
+      "file_extension": "md"
+    }
+  ],
+  "total_elapsed_seconds": 255.09,
+  "agents": [
+    {
+      "name": "documentation",
+      "status": "success",
+      "elapsed_seconds": 34.05
+    },
+    {
+      "name": "maintainability",
+      "status": "success",
+      "elapsed_seconds": 36.61
+    },
+    {
+      "name": "scope",
+      "status": "success",
+      "elapsed_seconds": 37.92
+    },
+    {
+      "name": "api_contract",
+      "status": "success",
+      "elapsed_seconds": 45.13
+    },
+    {
+      "name": "architecture",
+      "status": "success",
+      "elapsed_seconds": 52.04
+    },
+    {
+      "name": "dependency",
+      "status": "success",
+      "elapsed_seconds": 53.78
+    },
+    {
+      "name": "security",
+      "status": "success",
+      "elapsed_seconds": 54.54
+    },
+    {
+      "name": "performance",
+      "status": "success",
+      "elapsed_seconds": 54.66
+    },
+    {
+      "name": "database",
+      "status": "success",
+      "elapsed_seconds": 55.55
+    },
+    {
+      "name": "concurrency",
+      "status": "success",
+      "elapsed_seconds": 64.58
+    },
+    {
+      "name": "requirement",
+      "status": "success",
+      "elapsed_seconds": 66.69
+    },
+    {
+      "name": "side_effect",
+      "status": "success",
+      "elapsed_seconds": 72.03
+    },
+    {
+      "name": "testing",
+      "status": "success",
+      "elapsed_seconds": 76.36
+    }
+  ]
+}

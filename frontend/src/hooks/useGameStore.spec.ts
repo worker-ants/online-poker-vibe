@@ -84,8 +84,8 @@ describe('useGameStore', () => {
       roomId: 'r1',
       gameId: 'g1',
       results: [
-        { uuid: 'p1', nickname: 'Player1', result: 'win', chipsDelta: 100 },
-        { uuid: 'p2', nickname: 'Player2', result: 'loss', chipsDelta: -100 },
+        { uuid: 'p1', nickname: 'Player1', result: 'win', chipsDelta: 100, placement: 1, isAI: false },
+        { uuid: 'p2', nickname: 'Player2', result: 'loss', chipsDelta: -100, placement: 2, isAI: false },
       ],
     };
     useGameStore.getState().setGameEnd(gameEnd);
@@ -96,7 +96,7 @@ describe('useGameStore', () => {
     const gameEnd: GameEndResult = {
       roomId: 'r1',
       gameId: 'g1',
-      results: [{ uuid: 'p1', nickname: 'Player1', result: 'win', chipsDelta: 50 }],
+      results: [{ uuid: 'p1', nickname: 'Player1', result: 'win', chipsDelta: 50, placement: 1, isAI: false }],
     };
     useGameStore.getState().setGameEnd(gameEnd);
     useGameStore.getState().setGameEnd(null);
@@ -114,7 +114,7 @@ describe('useGameStore', () => {
     const gameEnd: GameEndResult = {
       roomId: 'r1',
       gameId: 'g1',
-      results: [{ uuid: 'p1', nickname: 'Player1', result: 'win', chipsDelta: 50 }],
+      results: [{ uuid: 'p1', nickname: 'Player1', result: 'win', chipsDelta: 50, placement: 1, isAI: false }],
     };
 
     useGameStore.getState().setCurrentRoom(room);

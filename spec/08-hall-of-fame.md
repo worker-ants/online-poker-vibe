@@ -116,6 +116,13 @@ ORDER BY
   lastGameTime DESC
 ```
 
+## 게임 기록 보존 정책
+
+- 완료(`completed`) 또는 이탈(`abandoned`) 상태의 게임 기록(Game, GameParticipant)은 방이 삭제되어도 보존
+- Game 엔티티의 `roomId`는 nullable이며, 방 삭제 시 `SET NULL`로 처리
+- 방 정리 시 진행 중(`in-progress`) 게임만 삭제 (`deleteInProgressGamesByRoom`)
+- AI 플레이어는 GameParticipant 레코드를 생성하지 않으므로 순위에 포함되지 않으나, AI와 함께 플레이한 인간 플레이어의 기록은 정상적으로 보존
+
 ## 전적 상세 모달
 
 목록에서 플레이어를 클릭하면 modal로 표시:

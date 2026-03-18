@@ -18,8 +18,8 @@ export class Game {
   id: string;
 
   @Index()
-  @Column({ type: 'text' })
-  roomId: string;
+  @Column({ type: 'text', nullable: true })
+  roomId: string | null;
 
   @Column({ type: 'text' })
   variant: PokerVariant;
@@ -37,9 +37,9 @@ export class Game {
   @Column({ type: 'datetime', nullable: true })
   finishedAt: Date | null;
 
-  @ManyToOne(() => Room, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Room, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'roomId' })
-  room: Room;
+  room: Room | null;
 
   @OneToMany(() => GameParticipant, (gp) => gp.game)
   participants: GameParticipant[];

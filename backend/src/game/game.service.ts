@@ -375,23 +375,28 @@ export class GameService implements OnModuleInit {
     return this.activeGames.has(roomId);
   }
 
-  async deleteByRoom(roomId: string): Promise<void> {
-    const games = await this.gameRepository.find({ where: { roomId } });
-    if (games.length === 0) return;
-
+  async deleteInProgressGamesByRoom(roomId: string): Promise<void> {
     const queryRunner =
       this.gameRepository.manager.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const gameIds = games.map((g) => g.id);
-      await queryRunner.manager
-        .createQueryBuilder()
-        .delete()
-        .from(GameParticipant)
-        .where('gameId IN (:...gameIds)', { gameIds })
-        .execute();
-      await queryRunner.manager.remove(games);
+      // Query inside transaction to avoid TOCTOU race with finishGame
+      const games = await queryRunner.manager.find(Game, {
+        where: { roomId, status: 'in-progress' as const },
+      });
+
+      if (games.length > 0) {
+        const gameIds = games.map((g) => g.id);
+        await queryRunner.manager
+          .createQueryBuilder()
+          .delete()
+          .from(GameParticipant)
+          .where('gameId IN (:...gameIds)', { gameIds })
+          .execute();
+        await queryRunner.manager.remove(games);
+      }
+
       await queryRunner.commitTransaction();
     } catch (err) {
       await queryRunner.rollbackTransaction();
@@ -399,5 +404,8 @@ export class GameService implements OnModuleInit {
     } finally {
       await queryRunner.release();
     }
+
+    // Clean up in-memory state
+    this.activeGames.delete(roomId);
   }
 }
