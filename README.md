@@ -32,6 +32,7 @@
 
 ```
 /online-poker-vibe
+  ├── history/             # 바이브 코딩을 진행한 내역 (프로젝트 초기화, 프롬프트, 휴먼 피드백)
   ├── spec/                # 스펙 문서 (Spec-Driven Development)
   ├── review/              # 코드 리뷰
   ├── backend/             # NestJS 서버 (Port 3000)
