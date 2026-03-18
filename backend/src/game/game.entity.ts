@@ -9,11 +9,7 @@ import {
 } from 'typeorm';
 import { Room } from '../room/room.entity.js';
 import { GameParticipant } from './game-participant.entity.js';
-import type {
-  PokerVariant,
-  GameMode,
-  GameStatus,
-} from '../common/types';
+import type { PokerVariant, GameMode, GameStatus } from '../common/types';
 
 @Entity('game')
 export class Game {

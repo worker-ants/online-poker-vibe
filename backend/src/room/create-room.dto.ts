@@ -7,11 +7,7 @@ import {
   Max,
   IsObject,
 } from 'class-validator';
-import type {
-  PokerVariant,
-  GameMode,
-  RoomSettings,
-} from '../common/types';
+import type { PokerVariant, GameMode, RoomSettings } from '../common/types';
 
 export class CreateRoomDto {
   @IsString()

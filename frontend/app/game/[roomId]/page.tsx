@@ -12,6 +12,7 @@ import GameLayout from '@/src/components/game/GameLayout';
 import PokerTable from '@/src/components/game/table/PokerTable';
 import PlayerList from '@/src/components/game/sidebar/PlayerList';
 import BettingControls from '@/src/components/game/sidebar/BettingControls';
+import GameRulesPanel from '@/src/components/game/sidebar/GameRulesPanel';
 import Button from '@/src/components/shared/Button';
 import type {
   RoomState,
@@ -175,6 +176,14 @@ export default function GamePage() {
       }
       sidebar={
         <div className="flex flex-col gap-4">
+          {currentRoom && (
+            <GameRulesPanel
+              variant={currentRoom.variant}
+              mode={currentRoom.mode}
+              settings={currentRoom.settings}
+            />
+          )}
+
           {currentRoom && (
             <PlayerList
               players={currentRoom.players}

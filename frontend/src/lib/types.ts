@@ -39,6 +39,7 @@ export interface RoomState {
   status: RoomStatus;
   hostUuid: string;
   maxPlayers: number;
+  settings: RoomSettings;
   players: RoomPlayer[];
 }
 
@@ -123,6 +124,21 @@ export interface GameHistoryEntry {
   gameTime: string;
   result: string;
   players: { nickname: string; placement: number | null }[];
+}
+
+export interface BlindLevel {
+  level: number;
+  smallBlind: number;
+  bigBlind: number;
+  handsPerLevel: number;
+}
+
+export interface RoomSettings {
+  startingChips: number;
+  smallBlind: number;
+  bigBlind: number;
+  ante?: number;
+  blindSchedule?: BlindLevel[];
 }
 
 export const VARIANT_LABELS: Record<PokerVariant, string> = {
