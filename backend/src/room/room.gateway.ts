@@ -15,7 +15,7 @@ import { PlayerService } from '../player/player.service.js';
 import { GameService } from '../game/game.service.js';
 import { AiPlayerService } from '../ai/ai-player.service.js';
 import { isAiPlayer } from '../ai/ai-names.js';
-import type { PlayerSeat } from '../common/types/game.types.js';
+import type { PlayerSeat, BettingAction } from '../common/types/game.types.js';
 
 function parseCookies(cookieHeader: string): Record<string, string> {
   const cookies: Record<string, string> = {};
@@ -414,7 +414,7 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
             gameState,
             actionRequired.playerUuid as string,
             {
-              actions: actionRequired.validActions as string[],
+              actions: actionRequired.validActions as BettingAction[],
               callAmount: actionRequired.callAmount as number,
               minRaise: actionRequired.minRaise as number,
               maxRaise: actionRequired.maxRaise as number,
