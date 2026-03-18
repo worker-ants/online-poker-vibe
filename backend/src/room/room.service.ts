@@ -53,8 +53,6 @@ export class RoomService {
       settings: JSON.stringify(defaultSettings),
     });
 
-    await this.roomRepository.save(room);
-
     // Host auto-joins at seat 0
     const roomPlayer = this.roomPlayerRepository.create({
       roomId: room.id,
@@ -62,7 +60,21 @@ export class RoomService {
       seatIndex: 0,
       isReady: false,
     });
-    await this.roomPlayerRepository.save(roomPlayer);
+
+    const queryRunner =
+      this.roomRepository.manager.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      await queryRunner.manager.save(room);
+      await queryRunner.manager.save(roomPlayer);
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
 
     return room;
   }
@@ -133,7 +145,19 @@ export class RoomService {
       isReady: false,
     });
 
-    return this.roomPlayerRepository.save(roomPlayer);
+    try {
+      return await this.roomPlayerRepository.save(roomPlayer);
+    } catch (error: any) {
+      if (
+        error?.code === 'SQLITE_CONSTRAINT' ||
+        error?.name === 'QueryFailedError'
+      ) {
+        throw new BadRequestException(
+          '좌석 배정에 실패했습니다. 다시 시도해주세요.',
+        );
+      }
+      throw error;
+    }
   }
 
   async leaveRoom(roomId: string, playerUuid: string): Promise<void> {

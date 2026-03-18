@@ -1,3 +1,4 @@
+import { randomInt } from 'crypto';
 import { SUITS, RANKS } from '../../common/types/card.types.js';
 import type { Card } from '../../common/types/card.types.js';
 
@@ -21,7 +22,7 @@ export class Deck {
   shuffle(): void {
     // Fisher-Yates shuffle
     for (let i = this.cards.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = randomInt(i + 1);
       [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
     }
   }

@@ -47,13 +47,6 @@ export class PotCalculator {
       const contribution = level - processedBet;
       if (contribution <= 0) continue;
 
-      // All players who bet at least this much contribute
-      const contributors = allPlayers.filter((p) => p.currentBet >= level);
-      // But also players who bet between processedBet and level
-      const partialContributors = allPlayers.filter(
-        (p) => p.currentBet > processedBet && p.currentBet < level,
-      );
-
       let potAmount = 0;
 
       for (const p of allPlayers) {

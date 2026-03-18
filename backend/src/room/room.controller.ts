@@ -1,7 +1,13 @@
-import { Controller, Get, Post, Body, Req } from '@nestjs/common';
-import * as express from 'express';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { RoomService } from './room.service.js';
 import { CreateRoomDto } from './create-room.dto.js';
+import { PlayerUuid } from '../common/decorators/player-uuid.decorator.js';
 
 @Controller('rooms')
 export class RoomController {
@@ -13,10 +19,12 @@ export class RoomController {
   }
 
   @Post()
-  async createRoom(@Req() req: express.Request, @Body() dto: CreateRoomDto) {
-    const uuid = (req as any).cookies?.player_uuid;
+  async createRoom(
+    @PlayerUuid() uuid: string | undefined,
+    @Body() dto: CreateRoomDto,
+  ) {
     if (!uuid) {
-      return { success: false, error: '인증이 필요합니다.' };
+      throw new UnauthorizedException('인증이 필요합니다.');
     }
     const room = await this.roomService.createRoom(uuid, dto);
     return { success: true, roomId: room.id };

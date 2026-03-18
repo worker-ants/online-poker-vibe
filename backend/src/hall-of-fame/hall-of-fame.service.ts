@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { GameParticipant } from '../game/game-participant.entity.js';
 import { Game } from '../game/game.entity.js';
 import { Player } from '../player/player.entity.js';
@@ -129,18 +129,36 @@ export class HallOfFameService {
       order: { game: { finishedAt: 'DESC' } },
     });
 
+    // Batch query all participants for all games to avoid N+1
+    const validParticipations = participations.filter(
+      (p) => p.game && p.game.status !== 'in-progress',
+    );
+    const gameIds = validParticipations
+      .map((p) => p.game?.id)
+      .filter(Boolean) as string[];
+
+    const allParticipants =
+      gameIds.length > 0
+        ? await this.participantRepository.find({
+            where: { gameId: In(gameIds) },
+            relations: ['player'],
+            order: { placement: 'ASC' },
+          })
+        : [];
+
+    // Group by gameId
+    const participantsByGame = new Map<string, typeof allParticipants>();
+    for (const p of allParticipants) {
+      const arr = participantsByGame.get(p.gameId) ?? [];
+      arr.push(p);
+      participantsByGame.set(p.gameId, arr);
+    }
+
     const games: GameHistoryEntry[] = [];
 
-    for (const participation of participations) {
-      const game = participation.game;
-      if (!game || game.status === 'in-progress') continue;
-
-      // Get all participants for this game
-      const allParticipants = await this.participantRepository.find({
-        where: { gameId: game.id },
-        relations: ['player'],
-        order: { placement: 'ASC' },
-      });
+    for (const participation of validParticipations) {
+      const game = participation.game!;
+      const gameParticipants = participantsByGame.get(game.id) ?? [];
 
       games.push({
         gameId: game.id,
@@ -149,7 +167,7 @@ export class HallOfFameService {
         gameTime:
           game.finishedAt?.toISOString() ?? game.startedAt.toISOString(),
         result: participation.result,
-        players: allParticipants.map((ap) => ({
+        players: gameParticipants.map((ap) => ({
           nickname: ap.player?.nickname ?? 'Unknown',
           placement: ap.placement,
         })),

@@ -10,10 +10,8 @@ const COOKIE_MAX_AGE = 365 * 24 * 60 * 60 * 1000; // 1 year
 export class PlayerController {
   constructor(private readonly playerService: PlayerService) {}
 
-  @Get('me')
-  async getMe(@Req() req: Request, @Res() res: Response) {
+  private getOrCreateUuid(req: Request, res: Response): string {
     let uuid = req.cookies?.[COOKIE_NAME];
-
     if (!uuid) {
       uuid = uuidv4();
       res.cookie(COOKIE_NAME, uuid, {
@@ -24,31 +22,27 @@ export class PlayerController {
         path: '/',
       });
     }
+    return uuid;
+  }
 
+  @Get('me')
+  async getMe(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const uuid = this.getOrCreateUuid(req, res);
     const player = await this.playerService.findOrCreate(uuid);
-    res.json({ uuid: player.uuid, nickname: player.nickname });
+    return { uuid: player.uuid, nickname: player.nickname };
   }
 
   @Post('nickname')
   async setNickname(
     @Req() req: Request,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
     @Body('nickname') nickname: string,
   ) {
-    let uuid = req.cookies?.[COOKIE_NAME];
-
-    if (!uuid) {
-      uuid = uuidv4();
-      res.cookie(COOKIE_NAME, uuid, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: COOKIE_MAX_AGE,
-        path: '/',
-      });
-    }
-
+    const uuid = this.getOrCreateUuid(req, res);
     const player = await this.playerService.setNickname(uuid, nickname);
-    res.json({ uuid: player.uuid, nickname: player.nickname });
+    return { uuid: player.uuid, nickname: player.nickname };
   }
 }

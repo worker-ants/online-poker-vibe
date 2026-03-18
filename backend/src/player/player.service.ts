@@ -1,7 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { v4 as uuidv4 } from 'uuid';
 import { Player } from './player.entity.js';
 
 @Injectable()
@@ -19,15 +18,21 @@ export class PlayerService {
     let player = await this.findByUuid(uuid);
     if (!player) {
       player = this.playerRepository.create({ uuid, nickname: null });
-      await this.playerRepository.save(player);
+      try {
+        await this.playerRepository.save(player);
+      } catch (error: any) {
+        if (
+          error?.code === 'SQLITE_CONSTRAINT' ||
+          error?.name === 'QueryFailedError'
+        ) {
+          player = await this.findByUuid(uuid);
+          if (!player) throw error;
+        } else {
+          throw error;
+        }
+      }
     }
     return player;
-  }
-
-  async createPlayer(): Promise<Player> {
-    const uuid = uuidv4();
-    const player = this.playerRepository.create({ uuid, nickname: null });
-    return this.playerRepository.save(player);
   }
 
   async setNickname(uuid: string, nickname: string): Promise<Player> {
@@ -52,7 +57,17 @@ export class PlayerService {
 
     const player = await this.findOrCreate(uuid);
     player.nickname = trimmed;
-    return this.playerRepository.save(player);
+    try {
+      return await this.playerRepository.save(player);
+    } catch (error: any) {
+      if (
+        error?.code === 'SQLITE_CONSTRAINT' ||
+        error?.name === 'QueryFailedError'
+      ) {
+        throw new BadRequestException('이미 사용 중인 닉네임입니다.');
+      }
+      throw error;
+    }
   }
 
   async isNicknameSet(uuid: string): Promise<boolean> {

@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, ParseUUIDPipe } from '@nestjs/common';
 import { HallOfFameService } from './hall-of-fame.service.js';
 
 @Controller('hall-of-fame')
@@ -19,7 +19,9 @@ export class HallOfFameController {
   }
 
   @Get(':playerUuid/history')
-  async getPlayerHistory(@Param('playerUuid') playerUuid: string) {
+  async getPlayerHistory(
+    @Param('playerUuid', ParseUUIDPipe) playerUuid: string,
+  ) {
     return this.hallOfFameService.getPlayerHistory(playerUuid);
   }
 }

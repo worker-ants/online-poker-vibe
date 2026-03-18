@@ -88,7 +88,6 @@ export class SevenCardStudEngine implements IPokerEngine {
       if (player.isFolded) continue;
       const anteAmount = Math.min(ante, player.chips);
       player.chips -= anteAmount;
-      player.currentBet = anteAmount;
       newState.pot += anteAmount;
       if (player.chips === 0) player.isAllIn = true;
     }
@@ -106,12 +105,6 @@ export class SevenCardStudEngine implements IPokerEngine {
     const bringInPlayer = this.findBringInPlayer(newState);
     newState.currentPlayerIndex = bringInPlayer;
     newState.phase = 'third-street';
-
-    // Reset bets for the street
-    newState.players.forEach((p) => {
-      p.currentBet = 0;
-      p.hasActed = false;
-    });
 
     return newState;
   }

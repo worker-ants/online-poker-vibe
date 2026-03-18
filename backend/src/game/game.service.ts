@@ -1,7 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { v4 as uuidv4 } from 'uuid';
 import { Game } from './game.entity.js';
 import { GameParticipant } from './game-participant.entity.js';
 import { Room } from '../room/room.entity.js';
@@ -25,8 +24,16 @@ interface ActiveGame {
 }
 
 @Injectable()
-export class GameService {
+export class GameService implements OnModuleInit {
   private activeGames = new Map<string, ActiveGame>();
+  private finishingRooms = new Set<string>();
+
+  async onModuleInit() {
+    await this.gameRepository.update(
+      { status: 'in-progress' },
+      { status: 'abandoned', finishedAt: new Date() },
+    );
+  }
 
   constructor(
     @InjectRepository(Game)
@@ -87,6 +94,10 @@ export class GameService {
     showdown?: any;
     gameResult?: any;
   }> {
+    if (this.finishingRooms.has(roomId)) {
+      throw new Error('핸드 종료 처리 중입니다.');
+    }
+
     const active = this.activeGames.get(roomId);
     if (!active) {
       throw new Error('진행 중인 게임이 없습니다.');
@@ -111,7 +122,12 @@ export class GameService {
       const gameOver = active.mode.isGameOver(alivePlayers.length);
 
       if (gameOver) {
-        await this.finishGame(active, alivePlayers);
+        this.finishingRooms.add(roomId);
+        try {
+          await this.finishGame(active, alivePlayers);
+        } finally {
+          this.finishingRooms.delete(roomId);
+        }
       }
 
       return {
@@ -181,7 +197,7 @@ export class GameService {
 
     const result: Record<string, Card[]> = {};
     for (const player of active.state.players) {
-      result[player.uuid] = player.holeCards;
+      result[player.uuid] = [...player.holeCards];
     }
     return result;
   }
@@ -215,41 +231,62 @@ export class GameService {
     active: ActiveGame,
     alivePlayers: any[],
   ): Promise<void> {
-    // Update game status
-    await this.gameRepository.update(active.gameId, {
-      status: 'completed',
-      finishedAt: new Date(),
-    });
+    const queryRunner =
+      this.gameRepository.manager.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    // Determine placements
-    const sortedPlayers = [...active.state.players].sort(
-      (a, b) => b.chips - a.chips,
-    );
-
-    // Save participants
-    for (let i = 0; i < sortedPlayers.length; i++) {
-      const player = sortedPlayers[i];
-      let result: 'win' | 'loss' | 'draw' | 'abandoned';
-
-      if (i === 0) {
-        result = 'win';
-      } else if (player.isDisconnected) {
-        result = 'abandoned';
-      } else {
-        result = 'loss';
-      }
-
-      const startingChips = active.mode.getStartingChips();
-      const participant = this.participantRepository.create({
-        gameId: active.gameId,
-        playerUuid: player.uuid,
-        result,
-        chipsDelta: player.chips - startingChips,
-        finalChips: player.chips,
-        placement: i + 1,
+    try {
+      // Update game status
+      await queryRunner.manager.update(Game, active.gameId, {
+        status: 'completed',
+        finishedAt: new Date(),
       });
 
-      await this.participantRepository.save(participant);
+      // Determine placements
+      const sortedPlayers = [...active.state.players].sort(
+        (a, b) => b.chips - a.chips,
+      );
+
+      // Determine top chips for draw detection
+      const topChips = sortedPlayers[0]?.chips ?? 0;
+
+      // Save participants
+      for (let i = 0; i < sortedPlayers.length; i++) {
+        const player = sortedPlayers[i];
+        let result: 'win' | 'loss' | 'draw' | 'abandoned';
+
+        if (player.chips === topChips && player.chips > 0) {
+          // Check if multiple players share the top chips
+          const topCount = sortedPlayers.filter(
+            (p) => p.chips === topChips,
+          ).length;
+          result = topCount > 1 ? 'draw' : 'win';
+        } else if (player.isDisconnected) {
+          result = 'abandoned';
+        } else {
+          result = 'loss';
+        }
+
+        const startingChips = active.mode.getStartingChips();
+        const participant = this.participantRepository.create({
+          gameId: active.gameId,
+          playerUuid: player.uuid,
+          result,
+          chipsDelta: player.chips - startingChips,
+          finalChips: player.chips,
+          placement: i + 1,
+        });
+
+        await queryRunner.manager.save(participant);
+      }
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
     }
 
     // Remove from active games

@@ -236,7 +236,7 @@ export class BettingRound {
         return idx;
       }
     }
-    return fromIndex; // No active players
+    return -1; // No active players
   }
 
   private cloneState(state: GameState): GameState {
