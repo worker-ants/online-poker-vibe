@@ -2,3 +2,21 @@
 .idea/
 .vscode/
 .history/
+
+# Dependencies
+node_modules/
+
+# Build output
+backend/dist/
+frontend/.next/
+frontend/out/
+
+# Database
+backend/data/*.sqlite
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
