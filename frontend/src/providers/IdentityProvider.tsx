@@ -45,15 +45,35 @@ export function IdentityProvider({ children }: { children: ReactNode }) {
       if (!socket) return { success: false, error: '연결되지 않았습니다.' };
 
       return new Promise((resolve) => {
+        let settled = false;
+
+        const settle = (result: { success: boolean; error?: string }) => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timeoutId);
+          socket.off('disconnect', onDisconnect);
+          resolve(result);
+        };
+
+        const onDisconnect = () => {
+          settle({ success: false, error: '서버 연결이 끊어졌습니다.' });
+        };
+
+        const timeoutId = setTimeout(() => {
+          settle({ success: false, error: '요청 시간이 초과되었습니다.' });
+        }, 10_000);
+
+        socket.on('disconnect', onDisconnect);
+
         socket.emit(
           WS_EVENTS.IDENTITY_SET_NICKNAME,
           { nickname: name },
           (response: { success: boolean; nickname?: string; error?: string }) => {
             if (response.success) {
               setNicknameState(response.nickname ?? name);
-              resolve({ success: true });
+              settle({ success: true });
             } else {
-              resolve({ success: false, error: response.error });
+              settle({ success: false, error: response.error });
             }
           },
         );

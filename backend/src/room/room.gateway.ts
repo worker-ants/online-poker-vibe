@@ -14,6 +14,7 @@ import { PlayerService } from '../player/player.service.js';
 import { GameService } from '../game/game.service.js';
 import { AiPlayerService } from '../ai/ai-player.service.js';
 import { isAiPlayer } from '../ai/ai-names.js';
+import { validate as uuidValidate } from 'uuid';
 import type { CreateRoomDto } from './create-room.dto.js';
 import type {
   PlayerSeat,
@@ -66,10 +67,10 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const cookies = parseCookies(cookieHeader);
     const uuid = cookies['player_uuid'];
 
-    if (!uuid) {
+    if (!uuid || !uuidValidate(uuid)) {
       client.emit(WS_EVENTS.ERROR, {
         code: 'NO_AUTH',
-        message: '인증 쿠키가 없습니다.',
+        message: '유효한 인증 쿠키가 없습니다.',
       });
       client.disconnect();
       return;

@@ -39,8 +39,8 @@ export class RoomService {
     }
 
     const maxPlayers = dto.maxPlayers ?? 6;
-    if (maxPlayers < 2 || maxPlayers > 6) {
-      throw new BadRequestException('최대 인원은 2~6명이어야 합니다.');
+    if (maxPlayers < 2 || maxPlayers > 10) {
+      throw new BadRequestException('최대 인원은 2~10명이어야 합니다.');
     }
 
     const defaultSettings: RoomSettings = {
@@ -49,6 +49,12 @@ export class RoomService {
       bigBlind: 20,
       ...(dto.settings ?? {}),
     };
+
+    if (defaultSettings.bigBlind < defaultSettings.smallBlind) {
+      throw new BadRequestException(
+        'bigBlind must be greater than or equal to smallBlind',
+      );
+    }
 
     const room = this.roomRepository.create({
       id: uuidv4(),
@@ -167,35 +173,62 @@ export class RoomService {
   }
 
   async leaveRoom(roomId: string, playerUuid: string): Promise<void> {
-    const roomPlayer = await this.roomPlayerRepository.findOne({
-      where: { roomId, playerUuid },
-    });
+    const queryRunner =
+      this.roomRepository.manager.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    if (!roomPlayer) return;
+    try {
+      const roomPlayer = await queryRunner.manager.findOne(RoomPlayer, {
+        where: { roomId, playerUuid },
+      });
 
-    await this.roomPlayerRepository.remove(roomPlayer);
+      if (!roomPlayer) {
+        await queryRunner.commitTransaction();
+        return;
+      }
 
-    const room = await this.roomRepository.findOne({
-      where: { id: roomId },
-      relations: ['roomPlayers'],
-    });
+      await queryRunner.manager.remove(roomPlayer);
 
-    if (!room) return;
+      const room = await queryRunner.manager.findOne(Room, {
+        where: { id: roomId },
+        relations: ['roomPlayers'],
+      });
 
-    // If no players left, delete room and associated game records
-    if (room.roomPlayers.length === 0) {
-      await this.gameService.deleteByRoom(roomId);
-      await this.roomRepository.remove(room);
-      return;
-    }
+      if (!room) {
+        await queryRunner.commitTransaction();
+        return;
+      }
 
-    // If host left, transfer to next player
-    if (room.hostUuid === playerUuid) {
-      const nextHost = room.roomPlayers.sort(
-        (a, b) => a.seatIndex - b.seatIndex,
-      )[0];
-      room.hostUuid = nextHost.playerUuid;
-      await this.roomRepository.save(room);
+      // If no players left, delete room and associated game records
+      if (room.roomPlayers.length === 0) {
+        await queryRunner.commitTransaction();
+        // deleteByRoom manages its own transaction, run outside ours
+        await this.gameService.deleteByRoom(roomId);
+        const roomToRemove = await this.roomRepository.findOne({
+          where: { id: roomId },
+        });
+        if (roomToRemove) {
+          await this.roomRepository.remove(roomToRemove);
+        }
+        return;
+      }
+
+      // If host left, transfer to next player
+      if (room.hostUuid === playerUuid) {
+        const nextHost = room.roomPlayers.sort(
+          (a, b) => a.seatIndex - b.seatIndex,
+        )[0];
+        room.hostUuid = nextHost.playerUuid;
+        await queryRunner.manager.save(room);
+      }
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
     }
   }
 

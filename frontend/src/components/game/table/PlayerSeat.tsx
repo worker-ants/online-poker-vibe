@@ -49,14 +49,14 @@ export default function PlayerSeat({
 
       <div className="flex gap-1">
         {cards
-          ? cards.map((card, i) => (
-              <Card key={i} card={card} faceUp={true} size="sm" />
+          ? cards.map((card) => (
+              <Card key={`${card.suit}-${card.rank}`} card={card} faceUp={true} size="sm" />
             ))
           : Array.from({ length: Math.min(cardCount, 7) }).map((_, i) => (
-              <Card key={i} faceUp={false} size="sm" />
+              <Card key={`facedown-${i}`} faceUp={false} size="sm" />
             ))}
-        {player.visibleCards.map((card, i) => (
-          <Card key={`v-${i}`} card={card} faceUp={true} size="sm" />
+        {player.visibleCards.map((card) => (
+          <Card key={`v-${card.suit}-${card.rank}`} card={card} faceUp={true} size="sm" />
         ))}
       </div>
 

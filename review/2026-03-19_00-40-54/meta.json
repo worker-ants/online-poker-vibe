@@ -1,0 +1,253 @@
+{
+  "timestamp": "2026-03-19T00:49:57.610331",
+  "files": [
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/engine/hand-evaluator.spec.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/engine/hand-evaluator.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/engine/modes/cash-game.mode.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/engine/modes/game-mode.interface.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/engine/modes/tournament.mode.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/engine/poker-engine.factory.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/engine/poker-engine.interface.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/engine/pot-calculator.spec.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/engine/pot-calculator.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/engine/variants/five-card-draw.engine.spec.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/engine/variants/five-card-draw.engine.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/engine/variants/seven-card-stud.engine.spec.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/engine/variants/seven-card-stud.engine.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/engine/variants/texas-holdem.engine.spec.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/engine/variants/texas-holdem.engine.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/game-participant.entity.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/game.entity.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/game.module.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/game.service.spec.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/game.service.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/hall-of-fame/hall-of-fame.controller.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/hall-of-fame/hall-of-fame.module.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/hall-of-fame/hall-of-fame.service.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/main.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/player/player.controller.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/player/player.entity.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/player/player.module.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/player/player.service.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/room/create-room.dto.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/room/room-player.entity.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/room/room.controller.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/room/room.entity.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/room/room.gateway.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/room/room.module.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/room/room.service.spec.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/room/room.service.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    }
+  ],
+  "total_elapsed_seconds": 542.84,
+  "agents": [
+    {
+      "name": "api_contract",
+      "status": "success",
+      "elapsed_seconds": 67.23
+    },
+    {
+      "name": "dependency",
+      "status": "success",
+      "elapsed_seconds": 69.94
+    },
+    {
+      "name": "documentation",
+      "status": "success",
+      "elapsed_seconds": 74.84
+    },
+    {
+      "name": "maintainability",
+      "status": "success",
+      "elapsed_seconds": 76.22
+    },
+    {
+      "name": "performance",
+      "status": "success",
+      "elapsed_seconds": 79.68
+    },
+    {
+      "name": "architecture",
+      "status": "success",
+      "elapsed_seconds": 89.94
+    },
+    {
+      "name": "database",
+      "status": "success",
+      "elapsed_seconds": 90.44
+    },
+    {
+      "name": "scope",
+      "status": "success",
+      "elapsed_seconds": 105.5
+    },
+    {
+      "name": "side_effect",
+      "status": "success",
+      "elapsed_seconds": 112.85
+    },
+    {
+      "name": "security",
+      "status": "success",
+      "elapsed_seconds": 117.65
+    },
+    {
+      "name": "requirement",
+      "status": "success",
+      "elapsed_seconds": 125.25
+    },
+    {
+      "name": "testing",
+      "status": "success",
+      "elapsed_seconds": 133.4
+    },
+    {
+      "name": "concurrency",
+      "status": "success",
+      "elapsed_seconds": 147.56
+    }
+  ]
+}

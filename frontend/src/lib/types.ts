@@ -3,11 +3,11 @@ export type GameMode = 'tournament' | 'cash';
 export type RoomStatus = 'waiting' | 'playing' | 'finished';
 export type PlayerStatus = 'waiting' | 'ready' | 'playing' | 'folded' | 'all-in' | 'disconnected';
 export type BettingAction = 'fold' | 'check' | 'call' | 'raise' | 'all-in';
-export type GamePhase = 'pre-deal' | 'deal' | 'pre-flop' | 'flop' | 'turn' | 'river' | 'draw' | 'first-bet' | 'second-bet' | 'ante' | 'third-street' | 'fourth-street' | 'fifth-street' | 'sixth-street' | 'seventh-street' | 'showdown';
+export type GamePhase = 'deal' | 'pre-flop' | 'flop' | 'turn' | 'river' | 'draw' | 'first-bet' | 'second-bet' | 'ante' | 'third-street' | 'fourth-street' | 'fifth-street' | 'sixth-street' | 'seventh-street' | 'showdown';
 
 export interface Card {
   suit: 'hearts' | 'diamonds' | 'clubs' | 'spades';
-  rank: string;
+  rank: '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | 'J' | 'Q' | 'K' | 'A';
   faceUp?: boolean;
 }
 
@@ -54,7 +54,7 @@ export interface PlayerPublicState {
   isDisconnected: boolean;
   visibleCards: Card[];
   cardCount: number;
-  isAI?: boolean;
+  isAI: boolean;
 }
 
 export interface PublicGameState {
@@ -75,6 +75,7 @@ export interface ActionRequired {
   minRaise: number;
   maxRaise: number;
   timeLimit: number;
+  isDraw?: boolean;
 }
 
 export interface ShowdownResult {
@@ -99,8 +100,8 @@ export interface GameEndResult {
     nickname: string;
     result: 'win' | 'loss' | 'draw' | 'abandoned';
     chipsDelta: number;
-    placement?: number;
-    isAI?: boolean;
+    placement: number;
+    isAI: boolean;
   }[];
 }
 
@@ -119,8 +120,8 @@ export interface HallOfFameEntry {
 
 export interface GameHistoryEntry {
   gameId: string;
-  variant: string;
-  mode: string;
+  variant: PokerVariant;
+  mode: GameMode;
   gameTime: string;
   result: string;
   players: { nickname: string; placement: number | null }[];
@@ -140,14 +141,3 @@ export interface RoomSettings {
   ante?: number;
   blindSchedule?: BlindLevel[];
 }
-
-export const VARIANT_LABELS: Record<PokerVariant, string> = {
-  'texas-holdem': 'Texas Hold\'em',
-  'five-card-draw': '5 Card Draw',
-  'seven-card-stud': '7 Card Stud',
-};
-
-export const MODE_LABELS: Record<GameMode, string> = {
-  tournament: 'Tournament',
-  cash: 'Cash Game',
-};

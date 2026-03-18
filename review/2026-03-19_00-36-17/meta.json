@@ -1,0 +1,323 @@
+{
+  "timestamp": "2026-03-19T00:40:54.765023",
+  "files": [
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/cards/Card.spec.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/cards/Card.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/game/GameLayout.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/game/HelpModal.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/game/TopNav.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/game/sidebar/BettingControls.spec.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/game/sidebar/BettingControls.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/game/sidebar/GameRulesPanel.test.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/game/sidebar/GameRulesPanel.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/game/sidebar/PlayerList.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/game/table/CommunityCards.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/game/table/PlayerSeat.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/game/table/PokerTable.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/game/table/PotDisplay.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/hall-of-fame/PlayerHistoryModal.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/hall-of-fame/RankingsTable.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/lobby/CreateRoomModal.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/lobby/NicknameInput.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/lobby/RoomCard.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/lobby/RoomList.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/shared/Button.spec.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/shared/Button.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/shared/Modal.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/hooks/useGameStore.spec.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/hooks/useGameStore.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/hooks/useRoomList.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/lib/constants.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/lib/socket.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/lib/types.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/providers/IdentityProvider.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/providers/SocketProvider.spec.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/providers/SocketProvider.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/providers/ToastProvider.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/test/setup.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/ai/ai-names.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/ai/ai-player.module.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/ai/ai-player.service.spec.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/ai/ai-player.service.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/app.module.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/common/decorators/player-uuid.decorator.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/common/guards/nickname-required.guard.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/common/types/card.types.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/common/types/events.types.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/common/types/game.types.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/common/types/index.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/database/database.module.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/engine/betting-round.spec.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/engine/betting-round.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/engine/deck.spec.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/engine/deck.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    }
+  ],
+  "total_elapsed_seconds": 277.31,
+  "agents": [
+    {
+      "name": "database",
+      "status": "success",
+      "elapsed_seconds": 38.38
+    },
+    {
+      "name": "documentation",
+      "status": "success",
+      "elapsed_seconds": 78.3
+    },
+    {
+      "name": "api_contract",
+      "status": "success",
+      "elapsed_seconds": 84.37
+    },
+    {
+      "name": "concurrency",
+      "status": "success",
+      "elapsed_seconds": 89.08
+    },
+    {
+      "name": "requirement",
+      "status": "success",
+      "elapsed_seconds": 91.99
+    },
+    {
+      "name": "architecture",
+      "status": "success",
+      "elapsed_seconds": 93.15
+    },
+    {
+      "name": "security",
+      "status": "success",
+      "elapsed_seconds": 93.91
+    },
+    {
+      "name": "performance",
+      "status": "success",
+      "elapsed_seconds": 94.03
+    },
+    {
+      "name": "testing",
+      "status": "success",
+      "elapsed_seconds": 96.71
+    },
+    {
+      "name": "dependency",
+      "status": "success",
+      "elapsed_seconds": 97.65
+    },
+    {
+      "name": "scope",
+      "status": "success",
+      "elapsed_seconds": 97.77
+    },
+    {
+      "name": "side_effect",
+      "status": "success",
+      "elapsed_seconds": 105.99
+    },
+    {
+      "name": "maintainability",
+      "status": "success",
+      "elapsed_seconds": 108.59
+    }
+  ]
+}

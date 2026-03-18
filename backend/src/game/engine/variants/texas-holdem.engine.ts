@@ -13,11 +13,11 @@ import { Deck } from '../deck.js';
 import { HandEvaluator } from '../hand-evaluator.js';
 import { BettingRound } from '../betting-round.js';
 import { PotCalculator } from '../pot-calculator.js';
+import { resolveHand } from '../resolve-hand.js';
 import { v4 as uuidv4 } from 'uuid';
 
 export class TexasHoldemEngine implements IPokerEngine {
   readonly variant = 'texas-holdem' as const;
-  private deck = new Deck();
   private handEvaluator = new HandEvaluator();
   private bettingRound = new BettingRound();
   private potCalculator = new PotCalculator();
@@ -56,7 +56,7 @@ export class TexasHoldemEngine implements IPokerEngine {
   }
 
   startHand(state: GameState): GameState {
-    const newState = JSON.parse(JSON.stringify(state)) as GameState;
+    const newState = structuredClone(state);
     newState.handNumber++;
 
     // Reset player state for new hand
@@ -111,9 +111,9 @@ export class TexasHoldemEngine implements IPokerEngine {
     newState.roundHistory = [];
 
     // Create and shuffle deck
-    this.deck.reset();
-    this.deck.shuffle();
-    newState.deck = this.deck.getCards();
+    const deck = new Deck();
+    deck.shuffle();
+    newState.deck = deck.getCards();
 
     // Post blinds
     const sbPlayer = newState.players[newState.smallBlindIndex];
@@ -198,87 +198,16 @@ export class TexasHoldemEngine implements IPokerEngine {
   }
 
   resolveHand(state: GameState): HandResult {
-    const activePlayers = state.players.filter((p) => !p.isFolded);
-
-    // If only one player remains, they win everything
-    if (activePlayers.length === 1) {
-      return {
-        winners: [
-          {
-            uuid: activePlayers[0].uuid,
-            amount: state.pot,
-            potType: 'main',
-          },
-        ],
-        playerHands: [],
-      };
-    }
-
-    // Evaluate hands
-    const playerHands = activePlayers.map((p) => {
-      const allCards = [...p.holeCards, ...state.communityCards];
-      const handRank = this.handEvaluator.evaluate(allCards);
-      return {
-        uuid: p.uuid,
-        cards: p.holeCards,
-        handRank,
-      };
-    });
-
-    // Calculate pots
-    const pots = this.potCalculator.calculatePots(state.players);
-
-    const winners: HandResult['winners'] = [];
-
-    for (const pot of pots) {
-      // Find eligible players with best hand
-      const eligibleHands = playerHands.filter((ph) =>
-        pot.playerUuids.includes(ph.uuid),
-      );
-
-      if (eligibleHands.length === 0) continue;
-
-      // Sort by hand rank (best first)
-      eligibleHands.sort((a, b) =>
-        this.handEvaluator.compareHands(b.handRank, a.handRank),
-      );
-
-      // Find all players with the best hand (ties)
-      const bestHand = eligibleHands[0].handRank;
-      const tiedPlayers = eligibleHands.filter(
-        (ph) => this.handEvaluator.compareHands(ph.handRank, bestHand) === 0,
-      );
-
-      // Split pot among tied players
-      const share = Math.floor(pot.amount / tiedPlayers.length);
-      const remainder = pot.amount % tiedPlayers.length;
-
-      tiedPlayers.forEach((ph, i) => {
-        winners.push({
-          uuid: ph.uuid,
-          amount: share + (i === 0 ? remainder : 0),
-          potType: pots.indexOf(pot) === 0 ? 'main' : 'side',
-        });
-      });
-    }
-
-    // If no pots were calculated, give everything to best hand
-    if (winners.length === 0 && playerHands.length > 0) {
-      playerHands.sort((a, b) =>
-        this.handEvaluator.compareHands(b.handRank, a.handRank),
-      );
-      winners.push({
-        uuid: playerHands[0].uuid,
-        amount: state.pot,
-        potType: 'main',
-      });
-    }
-
-    return { winners, playerHands };
+    return resolveHand(
+      state,
+      this.handEvaluator,
+      this.potCalculator,
+      (player, s) => [...player.holeCards, ...s.communityCards],
+    );
   }
 
   private advancePhase(state: GameState): GameState {
-    const newState = JSON.parse(JSON.stringify(state)) as GameState;
+    const newState = structuredClone(state);
 
     // If only one player left, go to showdown
     if (this.bettingRound.isOnlyOnePlayerRemaining(newState)) {

@@ -2,8 +2,7 @@
 
 import Modal from '@/src/components/shared/Modal';
 import type { GameHistoryEntry } from '@/src/lib/types';
-import { VARIANT_LABELS, MODE_LABELS } from '@/src/lib/types';
-import type { PokerVariant, GameMode } from '@/src/lib/types';
+import { VARIANT_LABELS, MODE_LABELS } from '@/src/lib/constants';
 
 interface PlayerHistoryModalProps {
   isOpen: boolean;
@@ -36,10 +35,10 @@ export default function PlayerHistoryModal({
                   </span>
                   <div className="flex gap-2">
                     <span className="rounded bg-blue-900 px-2 py-0.5 text-xs text-blue-300">
-                      {VARIANT_LABELS[game.variant as PokerVariant] ?? game.variant}
+                      {VARIANT_LABELS[game.variant] ?? game.variant}
                     </span>
                     <span className="rounded bg-purple-900 px-2 py-0.5 text-xs text-purple-300">
-                      {MODE_LABELS[game.mode as GameMode] ?? game.mode}
+                      {MODE_LABELS[game.mode] ?? game.mode}
                     </span>
                   </div>
                 </div>

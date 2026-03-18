@@ -5,6 +5,7 @@ import {
   ManyToOne,
   JoinColumn,
   Unique,
+  Index,
 } from 'typeorm';
 import { Game } from './game.entity.js';
 import { Player } from '../player/player.entity.js';
@@ -19,6 +20,7 @@ export class GameParticipant {
   @Column({ type: 'text' })
   gameId: string;
 
+  @Index()
   @Column({ type: 'text' })
   playerUuid: string;
 

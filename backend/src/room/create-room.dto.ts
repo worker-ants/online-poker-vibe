@@ -5,9 +5,33 @@ import {
   IsInt,
   Min,
   Max,
-  IsObject,
+  ValidateNested,
+  IsNumber,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import type { PokerVariant, GameMode, RoomSettings } from '../common/types';
+
+export class RoomSettingsDto implements Partial<RoomSettings> {
+  @IsOptional()
+  @IsInt()
+  @Min(1, { message: 'startingChips must be greater than 0' })
+  startingChips?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1, { message: 'smallBlind must be greater than 0' })
+  smallBlind?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1, { message: 'bigBlind must be greater than 0' })
+  bigBlind?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0, { message: 'ante must be >= 0' })
+  ante?: number;
+}
 
 export class CreateRoomDto {
   @IsString()
@@ -22,10 +46,11 @@ export class CreateRoomDto {
   @IsOptional()
   @IsInt()
   @Min(2)
-  @Max(6)
+  @Max(10)
   maxPlayers?: number;
 
   @IsOptional()
-  @IsObject()
-  settings?: Partial<RoomSettings>;
+  @ValidateNested()
+  @Type(() => RoomSettingsDto)
+  settings?: RoomSettingsDto;
 }

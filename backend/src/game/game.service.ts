@@ -48,6 +48,19 @@ export class GameService implements OnModuleInit {
   ) {}
 
   async startGame(room: Room, aiPlayers: PlayerSeat[] = []): Promise<string> {
+    // Guard: prevent duplicate active game for the same room
+    if (this.activeGames.has(room.id)) {
+      throw new Error('이 방에 이미 진행 중인 게임이 있습니다.');
+    }
+
+    // Also check DB for in-progress games
+    const existingGame = await this.gameRepository.findOne({
+      where: { roomId: room.id, status: 'in-progress' },
+    });
+    if (existingGame) {
+      throw new Error('이 방에 이미 진행 중인 게임이 있습니다.');
+    }
+
     const settings: RoomSettings = room.getSettings();
     const engine = PokerEngineFactory.createEngine(room.variant);
     const mode = PokerEngineFactory.createMode(room.mode, settings);

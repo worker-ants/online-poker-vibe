@@ -3,12 +3,14 @@ import { HandEvaluator } from '../game/engine/hand-evaluator.js';
 import { RANK_VALUES } from '../common/types/card.types.js';
 import { AI_NAMES, AI_UUID_PREFIX } from './ai-names.js';
 import type { Card } from '../common/types/card.types.js';
-import type {
-  GameState,
-  PlayerAction,
-  PlayerSeat,
-  BettingAction,
-  PokerVariant,
+import {
+  HAND_CATEGORY_RANKS,
+  HandCategory,
+  type GameState,
+  type PlayerAction,
+  type PlayerSeat,
+  type BettingAction,
+  type PokerVariant,
 } from '../common/types/game.types.js';
 
 interface ValidActions {
@@ -162,23 +164,22 @@ export class AiPlayerService {
     }
 
     const handRank = this.handEvaluator.evaluate(evalCards);
-    const categoryRank = handRank.categoryRank;
 
-    // Map category rank (1-10) to score (0.1-1.0)
-    const scoreMap: Record<number, number> = {
-      1: 0.1, // High Card
-      2: 0.3, // One Pair
-      3: 0.5, // Two Pair
-      4: 0.6, // Three of a Kind
-      5: 0.7, // Straight
-      6: 0.75, // Flush
-      7: 0.85, // Full House
-      8: 0.95, // Four of a Kind
-      9: 0.98, // Straight Flush
-      10: 1.0, // Royal Flush
+    // Map hand category to AI strength score (0.1-1.0)
+    const strengthScores: Record<number, number> = {
+      [HAND_CATEGORY_RANKS[HandCategory.HighCard]]: 0.1,
+      [HAND_CATEGORY_RANKS[HandCategory.OnePair]]: 0.3,
+      [HAND_CATEGORY_RANKS[HandCategory.TwoPair]]: 0.5,
+      [HAND_CATEGORY_RANKS[HandCategory.ThreeOfAKind]]: 0.6,
+      [HAND_CATEGORY_RANKS[HandCategory.Straight]]: 0.7,
+      [HAND_CATEGORY_RANKS[HandCategory.Flush]]: 0.75,
+      [HAND_CATEGORY_RANKS[HandCategory.FullHouse]]: 0.85,
+      [HAND_CATEGORY_RANKS[HandCategory.FourOfAKind]]: 0.95,
+      [HAND_CATEGORY_RANKS[HandCategory.StraightFlush]]: 0.98,
+      [HAND_CATEGORY_RANKS[HandCategory.RoyalFlush]]: 1.0,
     };
 
-    return scoreMap[categoryRank] ?? 0.1;
+    return strengthScores[handRank.categoryRank] ?? 0.1;
   }
 
   private preFlopStrength(holeCards: Card[]): number {

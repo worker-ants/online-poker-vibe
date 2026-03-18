@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4, validate as uuidValidate } from 'uuid';
 import { PlayerService } from './player.service.js';
 
 const COOKIE_NAME = 'player_uuid';
@@ -14,6 +14,10 @@ export class PlayerController {
     let uuid = (req.cookies as Record<string, string> | undefined)?.[
       COOKIE_NAME
     ];
+    if (uuid && !uuidValidate(uuid)) {
+      // Invalid UUID format in cookie — treat as missing and issue a new one
+      uuid = undefined;
+    }
     if (!uuid) {
       uuid = uuidv4();
       res.cookie(COOKIE_NAME, uuid, {

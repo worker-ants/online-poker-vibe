@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import type { PokerVariant, GameMode, RoomSettings } from '@/src/lib/types';
-import { VARIANT_LABELS, MODE_LABELS } from '@/src/lib/types';
+import { VARIANT_LABELS, MODE_LABELS } from '@/src/lib/constants';
 
 interface GameRulesPanelProps {
   variant: PokerVariant;

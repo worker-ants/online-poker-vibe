@@ -43,6 +43,7 @@ const mockGameRepository = {
   save: jest.fn((entity: unknown) => Promise.resolve(entity)),
   update: jest.fn(() => Promise.resolve()),
   find: jest.fn(),
+  findOne: jest.fn(() => Promise.resolve(null)),
   manager: {
     connection: {
       createQueryRunner: jest.fn(() => mockQueryRunner),

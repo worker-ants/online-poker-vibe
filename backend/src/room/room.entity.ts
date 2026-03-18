@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   JoinColumn,
+  Index,
 } from 'typeorm';
 import { Player } from '../player/player.entity.js';
 import { RoomPlayer } from './room-player.entity.js';
@@ -30,6 +31,7 @@ export class Room {
   @Column({ type: 'text' })
   mode: GameMode;
 
+  @Index()
   @Column({ type: 'text', default: 'waiting' })
   status: RoomStatus;
 

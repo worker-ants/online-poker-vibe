@@ -15,6 +15,8 @@ const mockQueryRunner = {
   release: jest.fn(),
   manager: {
     save: jest.fn((entity: unknown) => Promise.resolve(entity)),
+    findOne: jest.fn(),
+    remove: jest.fn((entity: unknown) => Promise.resolve(entity)),
   },
 };
 
@@ -130,7 +132,7 @@ describe('RoomService', () => {
 
       await expect(
         service.createRoom('p1', { ...validDto, maxPlayers: 1 }),
-      ).rejects.toThrow('최대 인원은 2~6명이어야 합니다.');
+      ).rejects.toThrow('최대 인원은 2~10명이어야 합니다.');
     });
 
     it('should throw for invalid maxPlayers (too large)', async () => {
@@ -141,8 +143,8 @@ describe('RoomService', () => {
       mockRoomPlayerRepository.findOne.mockResolvedValue(null);
 
       await expect(
-        service.createRoom('p1', { ...validDto, maxPlayers: 7 }),
-      ).rejects.toThrow('최대 인원은 2~6명이어야 합니다.');
+        service.createRoom('p1', { ...validDto, maxPlayers: 11 }),
+      ).rejects.toThrow('최대 인원은 2~10명이어야 합니다.');
     });
 
     it('should succeed and use transaction', async () => {
@@ -262,50 +264,50 @@ describe('RoomService', () => {
 
   describe('leaveRoom', () => {
     it('should do nothing when player is not in room', async () => {
-      mockRoomPlayerRepository.findOne.mockResolvedValue(null);
+      mockQueryRunner.manager.findOne.mockResolvedValue(null);
 
       await service.leaveRoom('room-1', 'p1');
 
-      expect(mockRoomPlayerRepository.remove).not.toHaveBeenCalled();
+      expect(mockQueryRunner.manager.remove).not.toHaveBeenCalled();
+      expect(mockQueryRunner.commitTransaction).toHaveBeenCalled();
+      expect(mockQueryRunner.release).toHaveBeenCalled();
     });
 
     it('should delete room and game records when last player leaves', async () => {
-      mockRoomPlayerRepository.findOne.mockResolvedValue({
-        roomId: 'room-1',
-        playerUuid: 'p1',
-      });
-      mockRoomRepository.findOne.mockResolvedValue({
-        id: 'room-1',
-        hostUuid: 'p1',
-        roomPlayers: [],
-      });
+      const roomPlayer = { roomId: 'room-1', playerUuid: 'p1' };
+      const room = { id: 'room-1', hostUuid: 'p1', roomPlayers: [] };
+      mockQueryRunner.manager.findOne
+        .mockResolvedValueOnce(roomPlayer) // findOne(RoomPlayer)
+        .mockResolvedValueOnce(room); // findOne(Room)
+      mockRoomRepository.findOne.mockResolvedValue(room);
 
       await service.leaveRoom('room-1', 'p1');
 
-      expect(mockRoomPlayerRepository.remove).toHaveBeenCalled();
+      expect(mockQueryRunner.manager.remove).toHaveBeenCalledWith(roomPlayer);
       expect(mockGameService.deleteByRoom).toHaveBeenCalledWith('room-1');
       expect(mockRoomRepository.remove).toHaveBeenCalled();
     });
 
     it('should transfer host when host leaves', async () => {
-      mockRoomPlayerRepository.findOne.mockResolvedValue({
-        roomId: 'room-1',
-        playerUuid: 'p1',
-      });
-      mockRoomRepository.findOne.mockResolvedValue({
+      const roomPlayer = { roomId: 'room-1', playerUuid: 'p1' };
+      const room = {
         id: 'room-1',
         hostUuid: 'p1',
         roomPlayers: [
           { playerUuid: 'p2', seatIndex: 1 },
           { playerUuid: 'p3', seatIndex: 2 },
         ],
-      });
+      };
+      mockQueryRunner.manager.findOne
+        .mockResolvedValueOnce(roomPlayer) // findOne(RoomPlayer)
+        .mockResolvedValueOnce(room); // findOne(Room)
 
       await service.leaveRoom('room-1', 'p1');
 
-      expect(mockRoomRepository.save).toHaveBeenCalledWith(
+      expect(mockQueryRunner.manager.save).toHaveBeenCalledWith(
         expect.objectContaining({ hostUuid: 'p2' }),
       );
+      expect(mockQueryRunner.commitTransaction).toHaveBeenCalled();
     });
   });
 

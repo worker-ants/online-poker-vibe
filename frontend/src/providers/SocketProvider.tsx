@@ -23,8 +23,12 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let cancelled = false;
 
-    const onConnect = () => setIsConnected(true);
-    const onDisconnect = () => setIsConnected(false);
+    const onConnect = () => {
+      if (!cancelled) setIsConnected(true);
+    };
+    const onDisconnect = () => {
+      if (!cancelled) setIsConnected(false);
+    };
 
     async function init() {
       // /player/me 호출로 서버가 player_uuid 쿠키를 설정하게 한 뒤 소켓 연결

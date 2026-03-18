@@ -3,8 +3,13 @@ import { CashGameMode } from '../modes/cash-game.mode.js';
 import type { PlayerSeat } from '../../../common/types/game.types.js';
 
 describe('SevenCardStudEngine', () => {
-  const engine = new SevenCardStudEngine();
-  const cashMode = new CashGameMode(1000, 10, 20);
+  let engine: SevenCardStudEngine;
+  let cashMode: CashGameMode;
+
+  beforeEach(() => {
+    engine = new SevenCardStudEngine();
+    cashMode = new CashGameMode(1000, 10, 20);
+  });
 
   const players: PlayerSeat[] = [
     { uuid: 'p1', nickname: 'Player1', seatIndex: 0, chips: 1000 },

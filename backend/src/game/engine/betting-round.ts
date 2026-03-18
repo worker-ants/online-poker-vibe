@@ -103,6 +103,9 @@ export class BettingRound {
         if (raiseAmount === undefined) {
           throw new Error('레이즈 금액을 지정해야 합니다.');
         }
+        if (!Number.isFinite(raiseAmount) || raiseAmount <= 0) {
+          throw new Error('유효하지 않은 레이즈 금액입니다.');
+        }
 
         const totalBet = raiseAmount;
         const additionalBet = totalBet - player.currentBet;
@@ -240,6 +243,6 @@ export class BettingRound {
   }
 
   private cloneState(state: GameState): GameState {
-    return JSON.parse(JSON.stringify(state)) as GameState;
+    return structuredClone(state);
   }
 }

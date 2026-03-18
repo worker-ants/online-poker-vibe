@@ -9,15 +9,16 @@ import type {
   StudPhase,
 } from '../../../common/types/game.types.js';
 import { RANK_VALUES, SUIT_VALUES } from '../../../common/types/card.types.js';
+import type { Card } from '../../../common/types/card.types.js';
 import { Deck } from '../deck.js';
 import { HandEvaluator } from '../hand-evaluator.js';
 import { BettingRound } from '../betting-round.js';
 import { PotCalculator } from '../pot-calculator.js';
+import { resolveHand } from '../resolve-hand.js';
 import { v4 as uuidv4 } from 'uuid';
 
 export class SevenCardStudEngine implements IPokerEngine {
   readonly variant = 'seven-card-stud' as const;
-  private deck = new Deck();
   private handEvaluator = new HandEvaluator();
   private bettingRound = new BettingRound();
   private potCalculator = new PotCalculator();
@@ -56,7 +57,7 @@ export class SevenCardStudEngine implements IPokerEngine {
   }
 
   startHand(state: GameState): GameState {
-    const newState = JSON.parse(JSON.stringify(state)) as GameState;
+    const newState = structuredClone(state);
     newState.handNumber++;
 
     // Reset players
@@ -76,9 +77,9 @@ export class SevenCardStudEngine implements IPokerEngine {
     newState.roundHistory = [];
 
     // Shuffle deck
-    this.deck.reset();
-    this.deck.shuffle();
-    newState.deck = this.deck.getCards();
+    const deck = new Deck();
+    deck.shuffle();
+    newState.deck = deck.getCards();
 
     // Collect ante from all players
     const ante = Math.max(1, Math.floor(newState.minRaise / 5));
@@ -145,73 +146,16 @@ export class SevenCardStudEngine implements IPokerEngine {
   }
 
   resolveHand(state: GameState): HandResult {
-    const activePlayers = state.players.filter((p) => !p.isFolded);
-
-    if (activePlayers.length === 1) {
-      return {
-        winners: [
-          {
-            uuid: activePlayers[0].uuid,
-            amount: state.pot,
-            potType: 'main',
-          },
-        ],
-        playerHands: [],
-      };
-    }
-
-    const playerHands = activePlayers.map((p) => {
-      const allCards = [...p.holeCards, ...p.visibleCards];
-      const handRank = this.handEvaluator.evaluate(allCards);
-      return { uuid: p.uuid, cards: allCards, handRank };
-    });
-
-    const pots = this.potCalculator.calculatePots(state.players);
-    const winners: HandResult['winners'] = [];
-
-    for (const pot of pots) {
-      const eligible = playerHands.filter((ph) =>
-        pot.playerUuids.includes(ph.uuid),
-      );
-      if (eligible.length === 0) continue;
-
-      eligible.sort((a, b) =>
-        this.handEvaluator.compareHands(b.handRank, a.handRank),
-      );
-
-      const bestHand = eligible[0].handRank;
-      const tied = eligible.filter(
-        (ph) => this.handEvaluator.compareHands(ph.handRank, bestHand) === 0,
-      );
-
-      const share = Math.floor(pot.amount / tied.length);
-      const remainder = pot.amount % tied.length;
-
-      tied.forEach((ph, i) => {
-        winners.push({
-          uuid: ph.uuid,
-          amount: share + (i === 0 ? remainder : 0),
-          potType: pots.indexOf(pot) === 0 ? 'main' : 'side',
-        });
-      });
-    }
-
-    if (winners.length === 0 && playerHands.length > 0) {
-      playerHands.sort((a, b) =>
-        this.handEvaluator.compareHands(b.handRank, a.handRank),
-      );
-      winners.push({
-        uuid: playerHands[0].uuid,
-        amount: state.pot,
-        potType: 'main',
-      });
-    }
-
-    return { winners, playerHands };
+    return resolveHand(
+      state,
+      this.handEvaluator,
+      this.potCalculator,
+      (player) => [...player.holeCards, ...player.visibleCards],
+    );
   }
 
   private advancePhase(state: GameState): GameState {
-    const newState = JSON.parse(JSON.stringify(state)) as GameState;
+    const newState = structuredClone(state);
 
     if (this.bettingRound.isOnlyOnePlayerRemaining(newState)) {
       newState.phase = 'showdown';
@@ -319,26 +263,64 @@ export class SevenCardStudEngine implements IPokerEngine {
     return lowestIndex;
   }
 
+  /**
+   * Rank visible cards for betting order by evaluating actual hand strength.
+   * Returns a numeric score: higher is better.
+   * Uses rank counts (pairs > high cards) and then compares kicker values.
+   */
+  private scoreVisibleCards(visibleCards: Card[]): number[] {
+    const values = visibleCards
+      .map((c) => RANK_VALUES[c.rank])
+      .sort((a, b) => b - a);
+
+    // Count occurrences of each value
+    const counts = new Map<number, number>();
+    for (const v of values) {
+      counts.set(v, (counts.get(v) ?? 0) + 1);
+    }
+
+    // Sort entries: by count desc, then by value desc
+    const entries = [...counts.entries()].sort((a, b) => {
+      if (b[1] !== a[1]) return b[1] - a[1];
+      return b[0] - a[0];
+    });
+
+    // Build a score array: [maxGroupSize, val1, val2, ...]
+    // This ensures pairs > high cards, trips > pairs, etc.
+    const score: number[] = [entries[0]?.[1] ?? 0];
+    for (const [val] of entries) {
+      score.push(val);
+    }
+    return score;
+  }
+
   private findHighestVisibleHand(state: GameState): number {
     let highestIndex = 0;
-    let highestValue = -1;
+    let highestScore: number[] = [];
 
     for (let i = 0; i < state.players.length; i++) {
       const player = state.players[i];
       if (player.isFolded) continue;
 
-      // Simple evaluation: just sum visible card values for ordering
-      const value = player.visibleCards.reduce(
-        (sum, c) => sum + RANK_VALUES[c.rank],
-        0,
-      );
+      const score = this.scoreVisibleCards(player.visibleCards);
 
-      if (value > highestValue) {
-        highestValue = value;
+      // Compare score arrays lexicographically
+      if (this.compareScoreArrays(score, highestScore) > 0) {
+        highestScore = score;
         highestIndex = i;
       }
     }
 
     return highestIndex;
+  }
+
+  private compareScoreArrays(a: number[], b: number[]): number {
+    const len = Math.max(a.length, b.length);
+    for (let i = 0; i < len; i++) {
+      const av = a[i] ?? 0;
+      const bv = b[i] ?? 0;
+      if (av !== bv) return av - bv;
+    }
+    return 0;
   }
 }

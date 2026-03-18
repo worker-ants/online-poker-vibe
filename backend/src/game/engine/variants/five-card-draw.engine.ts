@@ -13,11 +13,11 @@ import { Deck } from '../deck.js';
 import { HandEvaluator } from '../hand-evaluator.js';
 import { BettingRound } from '../betting-round.js';
 import { PotCalculator } from '../pot-calculator.js';
+import { resolveHand } from '../resolve-hand.js';
 import { v4 as uuidv4 } from 'uuid';
 
 export class FiveCardDrawEngine implements IPokerEngine {
   readonly variant = 'five-card-draw' as const;
-  private deck = new Deck();
   private handEvaluator = new HandEvaluator();
   private bettingRound = new BettingRound();
   private potCalculator = new PotCalculator();
@@ -56,7 +56,7 @@ export class FiveCardDrawEngine implements IPokerEngine {
   }
 
   startHand(state: GameState): GameState {
-    const newState = JSON.parse(JSON.stringify(state)) as GameState;
+    const newState = structuredClone(state);
     newState.handNumber++;
 
     // Rotate dealer
@@ -102,9 +102,9 @@ export class FiveCardDrawEngine implements IPokerEngine {
     newState.roundHistory = [];
 
     // Shuffle deck
-    this.deck.reset();
-    this.deck.shuffle();
-    newState.deck = this.deck.getCards();
+    const deck = new Deck();
+    deck.shuffle();
+    newState.deck = deck.getCards();
 
     // Post blinds
     const bigBlind = newState.minRaise;
@@ -195,68 +195,12 @@ export class FiveCardDrawEngine implements IPokerEngine {
   }
 
   resolveHand(state: GameState): HandResult {
-    const activePlayers = state.players.filter((p) => !p.isFolded);
-
-    if (activePlayers.length === 1) {
-      return {
-        winners: [
-          {
-            uuid: activePlayers[0].uuid,
-            amount: state.pot,
-            potType: 'main',
-          },
-        ],
-        playerHands: [],
-      };
-    }
-
-    const playerHands = activePlayers.map((p) => {
-      const handRank = this.handEvaluator.evaluate(p.holeCards);
-      return { uuid: p.uuid, cards: p.holeCards, handRank };
-    });
-
-    const pots = this.potCalculator.calculatePots(state.players);
-    const winners: HandResult['winners'] = [];
-
-    for (const pot of pots) {
-      const eligible = playerHands.filter((ph) =>
-        pot.playerUuids.includes(ph.uuid),
-      );
-      if (eligible.length === 0) continue;
-
-      eligible.sort((a, b) =>
-        this.handEvaluator.compareHands(b.handRank, a.handRank),
-      );
-
-      const bestHand = eligible[0].handRank;
-      const tied = eligible.filter(
-        (ph) => this.handEvaluator.compareHands(ph.handRank, bestHand) === 0,
-      );
-
-      const share = Math.floor(pot.amount / tied.length);
-      const remainder = pot.amount % tied.length;
-
-      tied.forEach((ph, i) => {
-        winners.push({
-          uuid: ph.uuid,
-          amount: share + (i === 0 ? remainder : 0),
-          potType: pots.indexOf(pot) === 0 ? 'main' : 'side',
-        });
-      });
-    }
-
-    if (winners.length === 0 && playerHands.length > 0) {
-      playerHands.sort((a, b) =>
-        this.handEvaluator.compareHands(b.handRank, a.handRank),
-      );
-      winners.push({
-        uuid: playerHands[0].uuid,
-        amount: state.pot,
-        potType: 'main',
-      });
-    }
-
-    return { winners, playerHands };
+    return resolveHand(
+      state,
+      this.handEvaluator,
+      this.potCalculator,
+      (player) => [...player.holeCards],
+    );
   }
 
   private handleDraw(
@@ -264,7 +208,7 @@ export class FiveCardDrawEngine implements IPokerEngine {
     playerUuid: string,
     action: PlayerAction,
   ): GameState {
-    const newState = JSON.parse(JSON.stringify(state)) as GameState;
+    const newState = structuredClone(state);
     const playerIndex = newState.players.findIndex(
       (p) => p.uuid === playerUuid,
     );
@@ -345,7 +289,7 @@ export class FiveCardDrawEngine implements IPokerEngine {
   }
 
   private advancePhase(state: GameState): GameState {
-    const newState = JSON.parse(JSON.stringify(state)) as GameState;
+    const newState = structuredClone(state);
 
     if (this.bettingRound.isOnlyOnePlayerRemaining(newState)) {
       newState.phase = 'showdown';

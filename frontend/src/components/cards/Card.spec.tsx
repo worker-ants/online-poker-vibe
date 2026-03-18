@@ -7,7 +7,7 @@ describe('Card', () => {
   it('should render card back when no card provided', () => {
     const { container } = render(<Card />);
     expect(screen.getByText('?')).toBeInTheDocument();
-    expect(container.firstChild).toBeDefined();
+    expect(container.firstChild).toHaveClass('bg-gradient-to-br', 'from-blue-800', 'to-blue-900');
   });
 
   it('should render card back when faceUp is false', () => {

@@ -3,8 +3,13 @@ import { CashGameMode } from '../modes/cash-game.mode.js';
 import type { PlayerSeat } from '../../../common/types/game.types.js';
 
 describe('TexasHoldemEngine', () => {
-  const engine = new TexasHoldemEngine();
-  const cashMode = new CashGameMode(1000, 10, 20);
+  let engine: TexasHoldemEngine;
+  let cashMode: CashGameMode;
+
+  beforeEach(() => {
+    engine = new TexasHoldemEngine();
+    cashMode = new CashGameMode(1000, 10, 20);
+  });
 
   const players: PlayerSeat[] = [
     { uuid: 'p1', nickname: 'Player1', seatIndex: 0, chips: 1000 },

@@ -1,7 +1,7 @@
 'use client';
 
 import type { RoomInfo } from '@/src/lib/types';
-import { VARIANT_LABELS, MODE_LABELS } from '@/src/lib/types';
+import { VARIANT_LABELS, MODE_LABELS } from '@/src/lib/constants';
 import Button from '@/src/components/shared/Button';
 
 interface RoomCardProps {

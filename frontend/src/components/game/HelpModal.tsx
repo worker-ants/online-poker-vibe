@@ -45,16 +45,17 @@ const VARIANT_RULES: Record<string, string[]> = {
 };
 
 export default function HelpModal({ isOpen, onClose, variant }: HelpModalProps) {
-  const rules = variant ? VARIANT_RULES[variant] : VARIANT_RULES['texas-holdem'];
+  const effectiveVariant = variant ?? 'texas-holdem';
+  const rules = VARIANT_RULES[effectiveVariant];
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="게임 도움말">
       <div className="max-h-96 overflow-y-auto">
-        {variant && (
+        {rules && (
           <div className="mb-4">
             <h3 className="mb-2 font-bold text-white">게임 규칙</h3>
             <ul className="list-inside list-disc space-y-1 text-gray-300">
-              {rules?.map((rule, i) => (
+              {rules.map((rule, i) => (
                 <li key={i}>{rule}</li>
               ))}
             </ul>

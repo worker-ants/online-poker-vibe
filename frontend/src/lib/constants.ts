@@ -1,3 +1,5 @@
+import type { PokerVariant, GameMode } from '@/src/lib/types';
+
 export const WS_EVENTS = {
   IDENTITY_SET_NICKNAME: 'identity:set-nickname',
   ROOM_LIST: 'room:list',
@@ -25,3 +27,14 @@ export const WS_EVENTS = {
 } as const;
 
 export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:3000';
+
+export const VARIANT_LABELS: Record<PokerVariant, string> = {
+  'texas-holdem': 'Texas Hold\'em',
+  'five-card-draw': '5 Card Draw',
+  'seven-card-stud': '7 Card Stud',
+};
+
+export const MODE_LABELS: Record<GameMode, string> = {
+  tournament: 'Tournament',
+  cash: 'Cash Game',
+};

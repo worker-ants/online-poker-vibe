@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import BettingControls from './BettingControls';
 import type { ActionRequired } from '@/src/lib/types';
 
@@ -73,6 +73,8 @@ describe('BettingControls', () => {
 
     rerender(<BettingControls actionRequired={makeAction({ minRaise: 80 })} onAction={onAction} />);
 
-    expect(screen.getByText('Raise to 80')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Raise to 80')).toBeInTheDocument();
+    });
   });
 });
