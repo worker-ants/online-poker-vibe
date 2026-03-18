@@ -7,6 +7,7 @@ import { Room } from '../room/room.entity.js';
 import { PokerEngineFactory } from './engine/poker-engine.factory.js';
 import type { IPokerEngine } from './engine/poker-engine.interface.js';
 import type { IGameMode } from './engine/modes/game-mode.interface.js';
+import { isAiPlayer } from '../ai/ai-names.js';
 import type {
   GameState,
   PlayerAction,
@@ -42,12 +43,12 @@ export class GameService implements OnModuleInit {
     private readonly participantRepository: Repository<GameParticipant>,
   ) {}
 
-  async startGame(room: Room): Promise<string> {
+  async startGame(room: Room, aiPlayers: PlayerSeat[] = []): Promise<string> {
     const settings: RoomSettings = room.getSettings();
     const engine = PokerEngineFactory.createEngine(room.variant);
     const mode = PokerEngineFactory.createMode(room.mode, settings);
 
-    const players: PlayerSeat[] = room.roomPlayers
+    const humanPlayers: PlayerSeat[] = room.roomPlayers
       .sort((a, b) => a.seatIndex - b.seatIndex)
       .map((rp) => ({
         uuid: rp.playerUuid,
@@ -55,6 +56,15 @@ export class GameService implements OnModuleInit {
         seatIndex: rp.seatIndex,
         chips: mode.getStartingChips(),
       }));
+
+    const aiPlayersWithChips = aiPlayers.map((ai) => ({
+      ...ai,
+      chips: mode.getStartingChips(),
+    }));
+
+    const players: PlayerSeat[] = [...humanPlayers, ...aiPlayersWithChips].sort(
+      (a, b) => a.seatIndex - b.seatIndex,
+    );
 
     let state = engine.initialize(players, mode);
     state.minRaise = mode.getBigBlind(1);
@@ -88,12 +98,18 @@ export class GameService implements OnModuleInit {
     roomId: string,
     playerUuid: string,
     action: PlayerAction,
+    fromAiLoop = false,
   ): Promise<{
     handComplete: boolean;
     gameOver: boolean;
     showdown?: any;
     gameResult?: any;
   }> {
+    // Prevent external clients from spoofing AI player actions
+    if (!fromAiLoop && isAiPlayer(playerUuid)) {
+      throw new Error('AI 플레이어의 액션을 직접 전송할 수 없습니다.');
+    }
+
     if (this.finishingRooms.has(roomId)) {
       throw new Error('핸드 종료 처리 중입니다.');
     }
@@ -186,6 +202,7 @@ export class GameService implements OnModuleInit {
         isDisconnected: p.isDisconnected,
         visibleCards: p.visibleCards,
         cardCount: p.holeCards.length,
+        isAI: isAiPlayer(p.uuid),
       })),
       handNumber: state.handNumber,
     };
@@ -212,6 +229,19 @@ export class GameService implements OnModuleInit {
       return null;
     }
 
+    // During draw phase, the current player needs to draw
+    if (state.phase === 'draw') {
+      return {
+        playerUuid: currentPlayer.uuid,
+        validActions: [],
+        callAmount: 0,
+        minRaise: 0,
+        maxRaise: 0,
+        timeLimit: 30,
+        isDraw: true,
+      };
+    }
+
     const validActions = active.engine.getValidActions(
       state,
       currentPlayer.uuid,
@@ -225,6 +255,20 @@ export class GameService implements OnModuleInit {
       maxRaise: validActions.maxRaise,
       timeLimit: 30,
     };
+  }
+
+  private resolvePlayerResult(
+    player: { chips: number; isDisconnected: boolean },
+    topChips: number,
+    topCount: number,
+  ): 'win' | 'loss' | 'draw' | 'abandoned' {
+    if (player.chips === topChips && player.chips > 0) {
+      return topCount > 1 ? 'draw' : 'win';
+    }
+    if (player.isDisconnected) {
+      return 'abandoned';
+    }
+    return 'loss';
   }
 
   private async finishGame(
@@ -243,31 +287,22 @@ export class GameService implements OnModuleInit {
         finishedAt: new Date(),
       });
 
-      // Determine placements
+      // Determine placements (all players including AI for overall ranking)
       const sortedPlayers = [...active.state.players].sort(
         (a, b) => b.chips - a.chips,
       );
-
-      // Determine top chips for draw detection
       const topChips = sortedPlayers[0]?.chips ?? 0;
+      const topCount = sortedPlayers.filter(
+        (p) => p.chips === topChips,
+      ).length;
 
-      // Save participants
-      for (let i = 0; i < sortedPlayers.length; i++) {
-        const player = sortedPlayers[i];
-        let result: 'win' | 'loss' | 'draw' | 'abandoned';
+      // Save participants (human players only, with correct placements)
+      const humanPlayers = sortedPlayers
+        .map((player, i) => ({ player, overallPlacement: i + 1 }))
+        .filter(({ player }) => !isAiPlayer(player.uuid));
 
-        if (player.chips === topChips && player.chips > 0) {
-          // Check if multiple players share the top chips
-          const topCount = sortedPlayers.filter(
-            (p) => p.chips === topChips,
-          ).length;
-          result = topCount > 1 ? 'draw' : 'win';
-        } else if (player.isDisconnected) {
-          result = 'abandoned';
-        } else {
-          result = 'loss';
-        }
-
+      for (const { player, overallPlacement } of humanPlayers) {
+        const result = this.resolvePlayerResult(player, topChips, topCount);
         const startingChips = active.mode.getStartingChips();
         const participant = this.participantRepository.create({
           gameId: active.gameId,
@@ -275,7 +310,7 @@ export class GameService implements OnModuleInit {
           result,
           chipsDelta: player.chips - startingChips,
           finalChips: player.chips,
-          placement: i + 1,
+          placement: overallPlacement,
         });
 
         await queryRunner.manager.save(participant);
@@ -294,23 +329,41 @@ export class GameService implements OnModuleInit {
   }
 
   private async getGameResult(active: ActiveGame): Promise<any> {
-    const participants = await this.participantRepository.find({
-      where: { gameId: active.gameId },
-      relations: ['player'],
-      order: { placement: 'ASC' },
-    });
+    const startingChips = active.mode.getStartingChips();
+
+    // Build results from in-memory state (includes both human and AI)
+    const sortedPlayers = [...active.state.players].sort(
+      (a, b) => b.chips - a.chips,
+    );
+    const topChips = sortedPlayers[0]?.chips ?? 0;
+    const topCount = sortedPlayers.filter(
+      (p) => p.chips === topChips,
+    ).length;
+
+    const results = sortedPlayers.map((p, i) => ({
+      uuid: p.uuid,
+      nickname: p.nickname,
+      result: this.resolvePlayerResult(p, topChips, topCount),
+      chipsDelta: p.chips - startingChips,
+      placement: i + 1,
+      isAI: isAiPlayer(p.uuid),
+    }));
 
     return {
       roomId: active.roomId,
       gameId: active.gameId,
-      results: participants.map((p) => ({
-        uuid: p.playerUuid,
-        nickname: p.player?.nickname ?? 'Unknown',
-        result: p.result,
-        chipsDelta: p.chipsDelta,
-        placement: p.placement,
-      })),
+      results,
     };
+  }
+
+  getGameState(roomId: string): GameState | null {
+    const active = this.activeGames.get(roomId);
+    return active?.state ?? null;
+  }
+
+  getGameVariant(roomId: string): string | null {
+    const active = this.activeGames.get(roomId);
+    return active?.state.variant ?? null;
   }
 
   isGameActive(roomId: string): boolean {

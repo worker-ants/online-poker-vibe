@@ -275,7 +275,8 @@ export class RoomService {
       relations: ['roomPlayers'],
     });
 
-    if (!room || room.roomPlayers.length < 2) return false;
+    // 1명이라도 준비되면 AI가 나머지 좌석을 채움
+    if (!room || room.roomPlayers.length < 1) return false;
     return room.roomPlayers.every((rp) => rp.isReady);
   }
 

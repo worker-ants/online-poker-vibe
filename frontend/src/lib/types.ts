@@ -53,6 +53,7 @@ export interface PlayerPublicState {
   isDisconnected: boolean;
   visibleCards: Card[];
   cardCount: number;
+  isAI?: boolean;
 }
 
 export interface PublicGameState {
@@ -98,6 +99,7 @@ export interface GameEndResult {
     result: 'win' | 'loss' | 'draw' | 'abandoned';
     chipsDelta: number;
     placement?: number;
+    isAI?: boolean;
   }[];
 }
 

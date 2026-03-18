@@ -79,7 +79,10 @@ describe('RoomService', () => {
 
   describe('createRoom', () => {
     it('should throw when player has no nickname', async () => {
-      mockPlayerService.findByUuid.mockResolvedValue({ uuid: 'p1', nickname: null });
+      mockPlayerService.findByUuid.mockResolvedValue({
+        uuid: 'p1',
+        nickname: null,
+      });
 
       await expect(service.createRoom('p1', validDto)).rejects.toThrow(
         BadRequestException,
@@ -95,7 +98,10 @@ describe('RoomService', () => {
     });
 
     it('should throw when player is already in a room', async () => {
-      mockPlayerService.findByUuid.mockResolvedValue({ uuid: 'p1', nickname: 'Player1' });
+      mockPlayerService.findByUuid.mockResolvedValue({
+        uuid: 'p1',
+        nickname: 'Player1',
+      });
       mockRoomPlayerRepository.findOne.mockResolvedValue({
         roomId: 'other-room',
         playerUuid: 'p1',
@@ -107,7 +113,10 @@ describe('RoomService', () => {
     });
 
     it('should throw for invalid maxPlayers (too small)', async () => {
-      mockPlayerService.findByUuid.mockResolvedValue({ uuid: 'p1', nickname: 'Player1' });
+      mockPlayerService.findByUuid.mockResolvedValue({
+        uuid: 'p1',
+        nickname: 'Player1',
+      });
       mockRoomPlayerRepository.findOne.mockResolvedValue(null);
 
       await expect(
@@ -116,7 +125,10 @@ describe('RoomService', () => {
     });
 
     it('should throw for invalid maxPlayers (too large)', async () => {
-      mockPlayerService.findByUuid.mockResolvedValue({ uuid: 'p1', nickname: 'Player1' });
+      mockPlayerService.findByUuid.mockResolvedValue({
+        uuid: 'p1',
+        nickname: 'Player1',
+      });
       mockRoomPlayerRepository.findOne.mockResolvedValue(null);
 
       await expect(
@@ -125,7 +137,10 @@ describe('RoomService', () => {
     });
 
     it('should succeed and use transaction', async () => {
-      mockPlayerService.findByUuid.mockResolvedValue({ uuid: 'p1', nickname: 'Player1' });
+      mockPlayerService.findByUuid.mockResolvedValue({
+        uuid: 'p1',
+        nickname: 'Player1',
+      });
       mockRoomPlayerRepository.findOne.mockResolvedValue(null);
 
       const result = await service.createRoom('p1', validDto);
@@ -144,7 +159,10 @@ describe('RoomService', () => {
 
   describe('joinRoom', () => {
     beforeEach(() => {
-      mockPlayerService.findByUuid.mockResolvedValue({ uuid: 'p2', nickname: 'Player2' });
+      mockPlayerService.findByUuid.mockResolvedValue({
+        uuid: 'p2',
+        nickname: 'Player2',
+      });
     });
 
     it('should throw when room does not exist', async () => {
@@ -331,9 +349,9 @@ describe('RoomService', () => {
         status: 'waiting',
       });
 
-      await expect(
-        service.kickPlayer('room-1', 'p2', 'p3'),
-      ).rejects.toThrow('방장만 추방할 수 있습니다.');
+      await expect(service.kickPlayer('room-1', 'p2', 'p3')).rejects.toThrow(
+        '방장만 추방할 수 있습니다.',
+      );
     });
 
     it('should throw when trying to kick self', async () => {
@@ -343,17 +361,17 @@ describe('RoomService', () => {
         status: 'waiting',
       });
 
-      await expect(
-        service.kickPlayer('room-1', 'p1', 'p1'),
-      ).rejects.toThrow('자기 자신은 추방할 수 없습니다.');
+      await expect(service.kickPlayer('room-1', 'p1', 'p1')).rejects.toThrow(
+        '자기 자신은 추방할 수 없습니다.',
+      );
     });
 
     it('should throw when room does not exist', async () => {
       mockRoomRepository.findOne.mockResolvedValue(null);
 
-      await expect(
-        service.kickPlayer('room-x', 'p1', 'p2'),
-      ).rejects.toThrow('존재하지 않는 방입니다.');
+      await expect(service.kickPlayer('room-x', 'p1', 'p2')).rejects.toThrow(
+        '존재하지 않는 방입니다.',
+      );
     });
 
     it('should successfully kick a player', async () => {
@@ -372,10 +390,20 @@ describe('RoomService', () => {
   });
 
   describe('checkAllReady', () => {
-    it('should return false when less than 2 players', async () => {
+    it('should return true when 1 player is ready (AI will fill remaining)', async () => {
       mockRoomRepository.findOne.mockResolvedValue({
         id: 'room-1',
         roomPlayers: [{ playerUuid: 'p1', isReady: true }],
+      });
+
+      const result = await service.checkAllReady('room-1');
+      expect(result).toBe(true);
+    });
+
+    it('should return false when no players', async () => {
+      mockRoomRepository.findOne.mockResolvedValue({
+        id: 'room-1',
+        roomPlayers: [],
       });
 
       const result = await service.checkAllReady('room-1');

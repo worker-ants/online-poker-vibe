@@ -4,6 +4,7 @@ import { In, Repository } from 'typeorm';
 import { GameParticipant } from '../game/game-participant.entity.js';
 import { Game } from '../game/game.entity.js';
 import { Player } from '../player/player.entity.js';
+import { AI_UUID_PREFIX } from '../ai/ai-names.js';
 
 export interface RankingEntry {
   rank: number;
@@ -53,6 +54,9 @@ export class HallOfFameService {
       .where('g.status IN (:...statuses)', {
         statuses: ['completed', 'abandoned'],
       })
+      .andWhere('gp.playerUuid NOT LIKE :aiPrefix', {
+        aiPrefix: `${AI_UUID_PREFIX}%`,
+      })
       .getRawOne();
 
     const total = parseInt(countResult?.count ?? '0', 10);
@@ -82,6 +86,9 @@ export class HallOfFameService {
       .innerJoin('gp.game', 'g')
       .where('g.status IN (:...statuses)', {
         statuses: ['completed', 'abandoned'],
+      })
+      .andWhere('gp.playerUuid NOT LIKE :aiPrefix', {
+        aiPrefix: `${AI_UUID_PREFIX}%`,
       })
       .groupBy('gp.playerUuid')
       .orderBy('winRate', 'DESC')
@@ -133,9 +140,7 @@ export class HallOfFameService {
     const validParticipations = participations.filter(
       (p) => p.game && p.game.status !== 'in-progress',
     );
-    const gameIds = validParticipations
-      .map((p) => p.game?.id)
-      .filter(Boolean) as string[];
+    const gameIds = validParticipations.map((p) => p.game?.id).filter(Boolean);
 
     const allParticipants =
       gameIds.length > 0
@@ -157,7 +162,7 @@ export class HallOfFameService {
     const games: GameHistoryEntry[] = [];
 
     for (const participation of validParticipations) {
-      const game = participation.game!;
+      const game = participation.game;
       const gameParticipants = participantsByGame.get(game.id) ?? [];
 
       games.push({

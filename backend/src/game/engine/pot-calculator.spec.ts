@@ -1,7 +1,9 @@
 import { PotCalculator } from './pot-calculator.js';
 import type { PlayerState } from '../../common/types/game.types.js';
 
-function makePlayer(overrides: Partial<PlayerState> & { uuid: string }): PlayerState {
+function makePlayer(
+  overrides: Partial<PlayerState> & { uuid: string },
+): PlayerState {
   return {
     nickname: overrides.uuid,
     seatIndex: 0,
@@ -43,7 +45,13 @@ describe('PotCalculator', () => {
 
     it('should create main pot and side pot when one player is all-in for less', () => {
       const players = [
-        makePlayer({ uuid: 'p1', seatIndex: 0, currentBet: 50, chips: 0, isAllIn: true }),
+        makePlayer({
+          uuid: 'p1',
+          seatIndex: 0,
+          currentBet: 50,
+          chips: 0,
+          isAllIn: true,
+        }),
         makePlayer({ uuid: 'p2', seatIndex: 1, currentBet: 100, chips: 900 }),
         makePlayer({ uuid: 'p3', seatIndex: 2, currentBet: 100, chips: 900 }),
       ];
@@ -58,16 +66,26 @@ describe('PotCalculator', () => {
       );
       // Side pot: 50 * 2 = 100, only p2 and p3 eligible
       expect(pots[1].amount).toBe(100);
-      expect(pots[1].playerUuids).toEqual(
-        expect.arrayContaining(['p2', 'p3']),
-      );
+      expect(pots[1].playerUuids).toEqual(expect.arrayContaining(['p2', 'p3']));
       expect(pots[1].playerUuids).not.toContain('p1');
     });
 
     it('should create multiple side pots with multiple all-ins at different levels', () => {
       const players = [
-        makePlayer({ uuid: 'p1', seatIndex: 0, currentBet: 30, chips: 0, isAllIn: true }),
-        makePlayer({ uuid: 'p2', seatIndex: 1, currentBet: 60, chips: 0, isAllIn: true }),
+        makePlayer({
+          uuid: 'p1',
+          seatIndex: 0,
+          currentBet: 30,
+          chips: 0,
+          isAllIn: true,
+        }),
+        makePlayer({
+          uuid: 'p2',
+          seatIndex: 1,
+          currentBet: 60,
+          chips: 0,
+          isAllIn: true,
+        }),
         makePlayer({ uuid: 'p3', seatIndex: 2, currentBet: 100, chips: 900 }),
       ];
 
@@ -81,9 +99,7 @@ describe('PotCalculator', () => {
       );
       // Side pot 1: 30 * 2 = 60, p2 and p3 eligible
       expect(pots[1].amount).toBe(60);
-      expect(pots[1].playerUuids).toEqual(
-        expect.arrayContaining(['p2', 'p3']),
-      );
+      expect(pots[1].playerUuids).toEqual(expect.arrayContaining(['p2', 'p3']));
       expect(pots[1].playerUuids).not.toContain('p1');
       // Side pot 2: 40 * 1 = 40, only p3 eligible
       expect(pots[2].amount).toBe(40);
@@ -92,7 +108,13 @@ describe('PotCalculator', () => {
 
     it('should include folded player contributions in pot but not make them eligible', () => {
       const players = [
-        makePlayer({ uuid: 'p1', seatIndex: 0, currentBet: 50, chips: 950, isFolded: true }),
+        makePlayer({
+          uuid: 'p1',
+          seatIndex: 0,
+          currentBet: 50,
+          chips: 950,
+          isFolded: true,
+        }),
         makePlayer({ uuid: 'p2', seatIndex: 1, currentBet: 100, chips: 900 }),
         makePlayer({ uuid: 'p3', seatIndex: 2, currentBet: 100, chips: 900 }),
       ];
@@ -116,8 +138,18 @@ describe('PotCalculator', () => {
 
     it('should return empty array when no active players', () => {
       const players = [
-        makePlayer({ uuid: 'p1', seatIndex: 0, currentBet: 50, isFolded: true }),
-        makePlayer({ uuid: 'p2', seatIndex: 1, currentBet: 50, isFolded: true }),
+        makePlayer({
+          uuid: 'p1',
+          seatIndex: 0,
+          currentBet: 50,
+          isFolded: true,
+        }),
+        makePlayer({
+          uuid: 'p2',
+          seatIndex: 1,
+          currentBet: 50,
+          isFolded: true,
+        }),
       ];
 
       const pots = calculator.calculatePots(players);
@@ -127,9 +159,19 @@ describe('PotCalculator', () => {
 
     it('should return single pot when all players fold except one', () => {
       const players = [
-        makePlayer({ uuid: 'p1', seatIndex: 0, currentBet: 50, isFolded: true }),
+        makePlayer({
+          uuid: 'p1',
+          seatIndex: 0,
+          currentBet: 50,
+          isFolded: true,
+        }),
         makePlayer({ uuid: 'p2', seatIndex: 1, currentBet: 100, chips: 900 }),
-        makePlayer({ uuid: 'p3', seatIndex: 2, currentBet: 50, isFolded: true }),
+        makePlayer({
+          uuid: 'p3',
+          seatIndex: 2,
+          currentBet: 50,
+          isFolded: true,
+        }),
       ];
 
       const pots = calculator.calculatePots(players);
@@ -175,7 +217,12 @@ describe('PotCalculator', () => {
 
     it('should include folded player bets in total', () => {
       const players = [
-        makePlayer({ uuid: 'p1', seatIndex: 0, currentBet: 30, isFolded: true }),
+        makePlayer({
+          uuid: 'p1',
+          seatIndex: 0,
+          currentBet: 30,
+          isFolded: true,
+        }),
         makePlayer({ uuid: 'p2', seatIndex: 1, currentBet: 100 }),
       ];
 

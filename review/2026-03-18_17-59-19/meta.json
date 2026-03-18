@@ -1,0 +1,158 @@
+{
+  "timestamp": "2026-03-18T18:02:37.499415",
+  "files": [
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/CLAUDE.md",
+      "change_type": "Review",
+      "file_extension": "md"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/engine/pot-calculator.spec.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/game.service.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/hall-of-fame/hall-of-fame.service.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/player/player.controller.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/room/room.gateway.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/room/room.module.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/room/room.service.spec.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/room/room.service.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/game/table/PlayerSeat.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/lib/types.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/history/history.md",
+      "change_type": "Review",
+      "file_extension": "md"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/ai/ai-names.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/ai/ai-player.module.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/ai/ai-player.service.spec.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/ai/ai-player.service.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/spec/10-ai-player.md",
+      "change_type": "Review",
+      "file_extension": "md"
+    }
+  ],
+  "total_elapsed_seconds": 198.32,
+  "agents": [
+    {
+      "name": "api_contract",
+      "status": "success",
+      "elapsed_seconds": 34.02
+    },
+    {
+      "name": "database",
+      "status": "success",
+      "elapsed_seconds": 36.12
+    },
+    {
+      "name": "concurrency",
+      "status": "success",
+      "elapsed_seconds": 36.55
+    },
+    {
+      "name": "performance",
+      "status": "success",
+      "elapsed_seconds": 38.82
+    },
+    {
+      "name": "maintainability",
+      "status": "success",
+      "elapsed_seconds": 38.84
+    },
+    {
+      "name": "documentation",
+      "status": "success",
+      "elapsed_seconds": 38.86
+    },
+    {
+      "name": "architecture",
+      "status": "success",
+      "elapsed_seconds": 39.34
+    },
+    {
+      "name": "testing",
+      "status": "success",
+      "elapsed_seconds": 41.01
+    },
+    {
+      "name": "scope",
+      "status": "success",
+      "elapsed_seconds": 45.09
+    },
+    {
+      "name": "side_effect",
+      "status": "success",
+      "elapsed_seconds": 47.46
+    },
+    {
+      "name": "security",
+      "status": "success",
+      "elapsed_seconds": 47.98
+    },
+    {
+      "name": "dependency",
+      "status": "success",
+      "elapsed_seconds": 53.46
+    },
+    {
+      "name": "requirement",
+      "status": "success",
+      "elapsed_seconds": 99.68
+    }
+  ]
+}

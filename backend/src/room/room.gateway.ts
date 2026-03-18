@@ -13,6 +13,9 @@ import { WS_EVENTS } from '../common/types/events.types.js';
 import { RoomService } from './room.service.js';
 import { PlayerService } from '../player/player.service.js';
 import { GameService } from '../game/game.service.js';
+import { AiPlayerService } from '../ai/ai-player.service.js';
+import { isAiPlayer } from '../ai/ai-names.js';
+import type { PlayerSeat } from '../common/types/game.types.js';
 
 function parseCookies(cookieHeader: string): Record<string, string> {
   const cookies: Record<string, string> = {};
@@ -39,10 +42,14 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // Map playerUuid -> socket.id
   private playerSocketMap = new Map<string, string>();
 
+  // Map roomId -> AI PlayerSeat[]
+  private aiPlayersMap = new Map<string, PlayerSeat[]>();
+
   constructor(
     private readonly roomService: RoomService,
     private readonly playerService: PlayerService,
     private readonly gameService: GameService,
+    private readonly aiPlayerService: AiPlayerService,
   ) {}
 
   async handleConnection(client: Socket) {
@@ -189,6 +196,22 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // Check if all ready and can start game
       const allReady = await this.roomService.checkAllReady(data.roomId);
       if (allReady) {
+        // Create AI players to fill empty seats
+        const room = await this.roomService.findRoomById(data.roomId);
+        if (room) {
+          const humanCount = room.roomPlayers.length;
+          const aiCount = room.maxPlayers - humanCount;
+          if (aiCount > 0) {
+            const occupiedSeats = new Set(
+              room.roomPlayers.map((rp) => rp.seatIndex),
+            );
+            const aiPlayers = this.aiPlayerService.createAiPlayers(
+              aiCount,
+              occupiedSeats,
+            );
+            this.aiPlayersMap.set(data.roomId, aiPlayers);
+          }
+        }
         await this.startGame(data.roomId);
       }
 
@@ -279,21 +302,14 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
             .to(data.roomId)
             .emit(WS_EVENTS.GAME_ENDED, result.gameResult);
           await this.roomService.setRoomStatus(data.roomId, 'finished');
+          this.aiPlayersMap.delete(data.roomId);
         } else {
           // Start next hand after a delay
           setTimeout(() => this.startNextHand(data.roomId), 3000);
         }
       } else {
-        // Notify next player
-        const actionRequired = this.gameService.getActionRequired(data.roomId);
-        if (actionRequired) {
-          const nextSocketId = this.getPlayerSocket(actionRequired.playerUuid);
-          if (nextSocketId) {
-            this.server
-              .to(nextSocketId)
-              .emit(WS_EVENTS.GAME_ACTION_REQUIRED, actionRequired);
-          }
-        }
+        // Process AI turns or notify human player
+        await this.processAiTurnsOrNotify(data.roomId);
       }
 
       return { success: true };
@@ -308,7 +324,8 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const room = await this.roomService.findRoomById(roomId);
     if (!room) return;
 
-    const gameId = await this.gameService.startGame(room);
+    const aiPlayers = this.aiPlayersMap.get(roomId) ?? [];
+    const gameId = await this.gameService.startGame(room, aiPlayers);
 
     this.server.to(roomId).emit(WS_EVENTS.GAME_STARTED, {
       roomId,
@@ -324,20 +341,12 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // Send private cards to each player
     await this.sendPrivateStates(roomId);
 
-    // Notify first player of their turn
-    const actionRequired = this.gameService.getActionRequired(roomId);
-    if (actionRequired) {
-      const socketId = this.getPlayerSocket(actionRequired.playerUuid);
-      if (socketId) {
-        this.server
-          .to(socketId)
-          .emit(WS_EVENTS.GAME_ACTION_REQUIRED, actionRequired);
-      }
-    }
-
     // Broadcast updated room list (room is now playing)
     const rooms = await this.roomService.getWaitingRooms();
     this.server.emit(WS_EVENTS.ROOM_LIST_UPDATE, rooms);
+
+    // Process AI turns or notify human player
+    await this.processAiTurnsOrNotify(roomId);
   }
 
   private async startNextHand(roomId: string) {
@@ -349,17 +358,112 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       await this.sendPrivateStates(roomId);
 
-      const actionRequired = this.gameService.getActionRequired(roomId);
-      if (actionRequired) {
-        const socketId = this.getPlayerSocket(actionRequired.playerUuid);
-        if (socketId) {
-          this.server
-            .to(socketId)
-            .emit(WS_EVENTS.GAME_ACTION_REQUIRED, actionRequired);
-        }
-      }
+      // Process AI turns or notify human player
+      await this.processAiTurnsOrNotify(roomId);
     } catch {
       // Game may have ended
+    }
+  }
+
+  // Guard to prevent concurrent AI loop execution per room
+  private processingAiTurns = new Set<string>();
+
+  private async processAiTurnsOrNotify(roomId: string) {
+    if (this.processingAiTurns.has(roomId)) return;
+    this.processingAiTurns.add(roomId);
+
+    const MAX_AI_TURNS = 100;
+    let turnCount = 0;
+
+    try {
+      // Runs until human player's turn, hand ends, or max iterations reached
+      while (turnCount < MAX_AI_TURNS) {
+        turnCount++;
+        const actionRequired = this.gameService.getActionRequired(roomId);
+        if (!actionRequired) break;
+
+        // If not an AI player, notify human and stop
+        if (!isAiPlayer(actionRequired.playerUuid as string)) {
+          const socketId = this.getPlayerSocket(
+            actionRequired.playerUuid as string,
+          );
+          if (socketId) {
+            this.server
+              .to(socketId)
+              .emit(WS_EVENTS.GAME_ACTION_REQUIRED, actionRequired);
+          }
+          break;
+        }
+
+        // AI player's turn - decide and act immediately
+        const gameState = this.gameService.getGameState(roomId);
+        if (!gameState) break;
+
+        let aiAction;
+        if (actionRequired.isDraw) {
+          // Five Card Draw draw phase
+          const player = gameState.players.find(
+            (p) => p.uuid === (actionRequired.playerUuid as string),
+          );
+          const discardIndices = player
+            ? this.aiPlayerService.getDiscardIndices(player.holeCards)
+            : [];
+          aiAction = { type: 'draw' as const, discardIndices };
+        } else {
+          aiAction = this.aiPlayerService.decideAction(
+            gameState,
+            actionRequired.playerUuid as string,
+            {
+              actions: actionRequired.validActions as string[],
+              callAmount: actionRequired.callAmount as number,
+              minRaise: actionRequired.minRaise as number,
+              maxRaise: actionRequired.maxRaise as number,
+            },
+            gameState.variant,
+          );
+        }
+
+        const result = await this.gameService.handleAction(
+          roomId,
+          actionRequired.playerUuid as string,
+          aiAction,
+          true, // fromAiLoop
+        );
+
+        // Broadcast AI action
+        const updatedState = this.gameService.getPublicState(roomId);
+        this.server.to(roomId).emit(WS_EVENTS.GAME_STATE, updatedState);
+        this.server.to(roomId).emit(WS_EVENTS.GAME_ACTION_PERFORMED, {
+          playerUuid: actionRequired.playerUuid,
+          action: aiAction.type,
+          amount: aiAction.amount,
+        });
+        await this.sendPrivateStates(roomId);
+
+        if (result.handComplete) {
+          this.server
+            .to(roomId)
+            .emit(WS_EVENTS.GAME_SHOWDOWN, result.showdown);
+
+          if (result.gameOver) {
+            this.server
+              .to(roomId)
+              .emit(WS_EVENTS.GAME_ENDED, result.gameResult);
+            await this.roomService.setRoomStatus(roomId, 'finished');
+            this.aiPlayersMap.delete(roomId);
+          } else {
+            setTimeout(() => this.startNextHand(roomId), 3000);
+          }
+          break;
+        }
+      }
+    } catch (err) {
+      this.server.to(roomId).emit(WS_EVENTS.ERROR, {
+        code: 'AI_ERROR',
+        message: 'AI 플레이어 처리 중 오류가 발생했습니다.',
+      });
+    } finally {
+      this.processingAiTurns.delete(roomId);
     }
   }
 

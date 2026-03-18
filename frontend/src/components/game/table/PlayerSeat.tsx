@@ -35,6 +35,11 @@ export default function PlayerSeat({
             D
           </span>
         )}
+        {player.isAI && (
+          <span className="rounded bg-purple-600 px-1 py-0.5 text-[10px] font-bold text-white">
+            AI
+          </span>
+        )}
         <span className={`text-sm font-medium ${isMe ? 'text-blue-400' : 'text-white'}`}>
           {player.nickname}
           {player.isAllIn && <span className="ml-1 text-red-400">(All-in)</span>}

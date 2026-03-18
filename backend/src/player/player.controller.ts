@@ -26,10 +26,7 @@ export class PlayerController {
   }
 
   @Get('me')
-  async getMe(
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async getMe(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const uuid = this.getOrCreateUuid(req, res);
     const player = await this.playerService.findOrCreate(uuid);
     return { uuid: player.uuid, nickname: player.nickname };
