@@ -18,7 +18,7 @@ import type {
   PlayerSeat,
   RoomSettings,
   Card,
-} from '../common/types/index.js';
+} from '../common/types';
 
 interface ActiveGame {
   engine: IPokerEngine;

@@ -13,7 +13,7 @@ import type {
   PokerVariant,
   GameMode,
   GameStatus,
-} from '../common/types/index.js';
+} from '../common/types';
 
 @Entity('game')
 export class Game {

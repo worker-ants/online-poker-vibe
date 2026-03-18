@@ -11,7 +11,7 @@ import { Room } from './room.entity.js';
 import { RoomPlayer } from './room-player.entity.js';
 import { GameService } from '../game/game.service.js';
 import { PlayerService } from '../player/player.service.js';
-import type { RoomSettings } from '../common/types/index.js';
+import type { RoomSettings } from '../common/types';
 import type { CreateRoomDto } from './create-room.dto.js';
 
 @Injectable()

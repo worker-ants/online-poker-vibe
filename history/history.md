@@ -515,3 +515,8 @@ DB 오류(sqlLite), 일부 카드가 보이지 않는 이슈 수정
 "QueryFailedError: SqliteError: FOREIGN KEY constraint failed" 오류가 발생하고 있으며,
 플레이어와 테이블의 카드가 보이지 않는 이슈(흰 카드로만 보임)가 있습니다.
 ```
+
+# Turn 12
+```text
+IDE에서 "Warning: Import can be shortened" 경고가 발생합니다. 수정해 주세요.
+```

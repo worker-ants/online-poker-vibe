@@ -14,7 +14,7 @@ import type {
   GameMode,
   RoomStatus,
   RoomSettings,
-} from '../common/types/index.js';
+} from '../common/types';
 
 @Entity('room')
 export class Room {

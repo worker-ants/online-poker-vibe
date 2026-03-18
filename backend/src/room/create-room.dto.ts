@@ -11,7 +11,7 @@ import type {
   PokerVariant,
   GameMode,
   RoomSettings,
-} from '../common/types/index.js';
+} from '../common/types';
 
 export class CreateRoomDto {
   @IsString()
