@@ -9,9 +9,9 @@
 | 3 | `PotCalculator` 미사용 `partialContributors` 변수 | 미사용 변수 제거 (실제 팟 계산은 `Math.min(Math.max(...))` 로 정상 동작 중) | **완료** |
 | 4 | 세븐카드 스터드 앤티/currentBet 충돌 | `player.currentBet = anteAmount` 제거 — 앤티는 팟에만 기여하고 베팅 라운드 currentBet에 영향 안줌 | **완료** |
 | 5 | `startNextHand()` 자동 호출 경로 없음 | 이미 `room.gateway.ts:284`에서 `setTimeout(() => this.startNextHand(roomId), 3000)` 구현됨 — 리뷰 시점 누락된 것으로 판단 | **해당 없음** |
-| 6 | `PotCalculator` 테스트 전무 | 향후 TDD 사이클에서 별도 작성 예정 | **보류** |
-| 7 | `GameService` 테스트 전무 | 향후 TDD 사이클에서 별도 작성 예정 | **보류** |
-| 8 | `RoomService`/`RoomGateway` 테스트 전무 | 향후 TDD 사이클에서 별도 작성 예정 | **보류** |
+| 6 | `PotCalculator` 테스트 전무 | `pot-calculator.spec.ts` 작성 — 단일팟, 사이드팟, 다중 올인, 폴드 기여금 등 11개 테스트 | **완료** |
+| 7 | `GameService` 테스트 전무 | `game.service.spec.ts` 작성 — onModuleInit, startGame, handleAction, getPublicState, getPrivateStates, startNextHand 등 15개 테스트 | **완료** |
+| 8 | `RoomService`/`RoomGateway` 테스트 전무 | `room.service.spec.ts` 작성 — createRoom, joinRoom, leaveRoom, toggleReady, kickPlayer, checkAllReady 등 27개 테스트 | **완료** |
 | 9 | API 에러 응답 형식 불일치 | `RoomController`에서 `{ success: false }` 대신 `throw new UnauthorizedException()` 사용, `@PlayerUuid()` 데코레이터 적용 | **완료** |
 
 ## Warning 조치
@@ -42,8 +42,9 @@
 | 22 | `SetNicknameDto` 미사용 | 향후 ValidationPipe 도입 시 적용 예정 | **보류** |
 | 23 | Hall of Fame 인증 없음 | 공개 데이터로 현재 의도된 동작 — `ParseUUIDPipe` 추가로 UUID 형식 검증 | **완료** |
 | 24 | URL 네이밍 불일치 | 기존 클라이언트 호환성 유지 위해 보류 | **보류** |
-| 25-26 | FiveCardDraw/SevenCardStud 테스트 전무 | 향후 TDD 사이클에서 작성 예정 | **보류** |
-| 27 | `BettingRound` 테스트 상태 오염 | 향후 테스트 개선 시 적용 예정 | **보류** |
+| 25 | FiveCardDraw 테스트 전무 | `five-card-draw.engine.spec.ts` 작성 — 초기화, 핸드시작, 올폴드, 드로우, 풀핸드, 헤즈업 등 8개 테스트 | **완료** |
+| 26 | SevenCardStud 테스트 전무 | `seven-card-stud.engine.spec.ts` 작성 — 초기화, 앤티, 브링인, 올폴드, 페이즈 진행 등 8개 테스트 | **완료** |
+| 27 | `BettingRound` 테스트 상태 오염 | `describe` 레벨 인스턴스를 `beforeEach`로 이동하여 테스트 간 독립성 보장 | **완료** |
 | 28 | `socket.io` 버전 불일치 위험 | 향후 의존성 정리 시 적용 예정 | **보류** |
 | 29 | `settings` JSON 문자열 타입 안전성 | 향후 타입 안전성 개선 시 적용 예정 | **보류** |
 | 30 | `finishGame()` draw 처리 없음 | 동일 칩 보유 시 `draw` 결과 처리 로직 추가 | **완료** |

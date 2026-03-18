@@ -2,7 +2,11 @@ import { BettingRound } from './betting-round.js';
 import type { GameState, PlayerState } from '../../common/types/game.types.js';
 
 describe('BettingRound', () => {
-  const bettingRound = new BettingRound();
+  let bettingRound: BettingRound;
+
+  beforeEach(() => {
+    bettingRound = new BettingRound();
+  });
 
   function makeState(overrides?: Partial<GameState>): GameState {
     const defaultPlayers: PlayerState[] = [
