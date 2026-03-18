@@ -507,3 +507,11 @@ lint, babel 이슈를 기존 이슈라는 사유로 해결하지 않음
 ```text
 spec을 참고하여 README.md 파일을 작성해 주세요. 
 ```
+
+# Turn 11
+DB 오류(sqlLite), 일부 카드가 보이지 않는 이슈 수정
+
+```text
+"QueryFailedError: SqliteError: FOREIGN KEY constraint failed" 오류가 발생하고 있으며,
+플레이어와 테이블의 카드가 보이지 않는 이슈(흰 카드로만 보임)가 있습니다.
+```

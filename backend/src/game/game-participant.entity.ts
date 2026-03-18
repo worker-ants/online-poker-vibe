@@ -34,11 +34,11 @@ export class GameParticipant {
   @Column({ type: 'integer', nullable: true })
   placement: number | null;
 
-  @ManyToOne(() => Game, (game) => game.participants)
+  @ManyToOne(() => Game, (game) => game.participants, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'gameId' })
   game: Game;
 
-  @ManyToOne(() => Player)
+  @ManyToOne(() => Player, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'playerUuid' })
   player: Player;
 }

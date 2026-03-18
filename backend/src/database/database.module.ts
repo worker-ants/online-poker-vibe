@@ -9,6 +9,9 @@ import { join } from 'path';
       database: join(__dirname, '..', '..', 'data', 'poker.sqlite'),
       autoLoadEntities: true,
       synchronize: process.env.NODE_ENV !== 'production',
+      prepareDatabase: (db: { pragma: (sql: string) => void }) => {
+        db.pragma('foreign_keys = ON');
+      },
     }),
   ],
 })

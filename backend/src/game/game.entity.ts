@@ -38,7 +38,7 @@ export class Game {
   @Column({ type: 'datetime', nullable: true })
   finishedAt: Date | null;
 
-  @ManyToOne(() => Room)
+  @ManyToOne(() => Room, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'roomId' })
   room: Room;
 

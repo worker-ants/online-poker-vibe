@@ -1,0 +1,108 @@
+{
+  "timestamp": "2026-03-18T19:32:19.111105",
+  "files": [
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/game-participant.entity.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/game/game.entity.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/room/room.module.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/room/room.service.spec.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/backend/src/room/room.service.ts",
+      "change_type": "Review",
+      "file_extension": "ts"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/components/cards/Card.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/history/history.md",
+      "change_type": "Review",
+      "file_extension": "md"
+    }
+  ],
+  "total_elapsed_seconds": 123.07,
+  "agents": [
+    {
+      "name": "maintainability",
+      "status": "success",
+      "elapsed_seconds": 24.95
+    },
+    {
+      "name": "scope",
+      "status": "success",
+      "elapsed_seconds": 28.72
+    },
+    {
+      "name": "testing",
+      "status": "success",
+      "elapsed_seconds": 31.13
+    },
+    {
+      "name": "performance",
+      "status": "success",
+      "elapsed_seconds": 31.27
+    },
+    {
+      "name": "api_contract",
+      "status": "success",
+      "elapsed_seconds": 33.33
+    },
+    {
+      "name": "side_effect",
+      "status": "success",
+      "elapsed_seconds": 35.09
+    },
+    {
+      "name": "security",
+      "status": "success",
+      "elapsed_seconds": 36.0
+    },
+    {
+      "name": "documentation",
+      "status": "success",
+      "elapsed_seconds": 39.67
+    },
+    {
+      "name": "dependency",
+      "status": "success",
+      "elapsed_seconds": 41.92
+    },
+    {
+      "name": "requirement",
+      "status": "success",
+      "elapsed_seconds": 44.37
+    },
+    {
+      "name": "architecture",
+      "status": "success",
+      "elapsed_seconds": 44.82
+    },
+    {
+      "name": "database",
+      "status": "success",
+      "elapsed_seconds": 51.55
+    },
+    {
+      "name": "concurrency",
+      "status": "success",
+      "elapsed_seconds": 53.9
+    }
+  ]
+}

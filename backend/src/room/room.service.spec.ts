@@ -4,6 +4,7 @@ import { BadRequestException } from '@nestjs/common';
 import { RoomService } from './room.service.js';
 import { Room } from './room.entity.js';
 import { RoomPlayer } from './room-player.entity.js';
+import { GameService } from '../game/game.service.js';
 import { PlayerService } from '../player/player.service.js';
 
 const mockQueryRunner = {
@@ -39,6 +40,10 @@ const mockRoomPlayerRepository = {
   remove: jest.fn((entity: unknown) => Promise.resolve(entity)),
 };
 
+const mockGameService = {
+  deleteByRoom: jest.fn(() => Promise.resolve()),
+};
+
 const mockPlayerService = {
   findByUuid: jest.fn(),
 };
@@ -59,6 +64,10 @@ describe('RoomService', () => {
         {
           provide: getRepositoryToken(RoomPlayer),
           useValue: mockRoomPlayerRepository,
+        },
+        {
+          provide: GameService,
+          useValue: mockGameService,
         },
         {
           provide: PlayerService,
@@ -260,7 +269,7 @@ describe('RoomService', () => {
       expect(mockRoomPlayerRepository.remove).not.toHaveBeenCalled();
     });
 
-    it('should delete room when last player leaves', async () => {
+    it('should delete room and game records when last player leaves', async () => {
       mockRoomPlayerRepository.findOne.mockResolvedValue({
         roomId: 'room-1',
         playerUuid: 'p1',
@@ -274,6 +283,7 @@ describe('RoomService', () => {
       await service.leaveRoom('room-1', 'p1');
 
       expect(mockRoomPlayerRepository.remove).toHaveBeenCalled();
+      expect(mockGameService.deleteByRoom).toHaveBeenCalledWith('room-1');
       expect(mockRoomRepository.remove).toHaveBeenCalled();
     });
 

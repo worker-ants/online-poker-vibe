@@ -19,8 +19,8 @@ const SUIT_SYMBOLS: Record<string, string> = {
 const SUIT_COLORS: Record<string, string> = {
   hearts: 'text-red-500',
   diamonds: 'text-red-500',
-  clubs: 'text-white',
-  spades: 'text-white',
+  clubs: 'text-gray-900',
+  spades: 'text-gray-900',
 };
 
 const sizeClasses = {
@@ -41,7 +41,7 @@ export default function Card({ card, faceUp = true, size = 'md', className = '' 
   }
 
   const suitSymbol = SUIT_SYMBOLS[card.suit] ?? '';
-  const suitColor = SUIT_COLORS[card.suit] ?? 'text-white';
+  const suitColor = SUIT_COLORS[card.suit] ?? 'text-gray-900';
 
   return (
     <div

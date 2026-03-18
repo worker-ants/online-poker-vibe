@@ -1,9 +1,15 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { Room } from './room.entity.js';
 import { RoomPlayer } from './room-player.entity.js';
+import { GameService } from '../game/game.service.js';
 import { PlayerService } from '../player/player.service.js';
 import type { RoomSettings } from '../common/types/index.js';
 import type { CreateRoomDto } from './create-room.dto.js';
@@ -15,6 +21,8 @@ export class RoomService {
     private readonly roomRepository: Repository<Room>,
     @InjectRepository(RoomPlayer)
     private readonly roomPlayerRepository: Repository<RoomPlayer>,
+    @Inject(forwardRef(() => GameService))
+    private readonly gameService: GameService,
     private readonly playerService: PlayerService,
   ) {}
 
@@ -174,8 +182,9 @@ export class RoomService {
 
     if (!room) return;
 
-    // If no players left, delete room
+    // If no players left, delete room and associated game records
     if (room.roomPlayers.length === 0) {
+      await this.gameService.deleteByRoom(roomId);
       await this.roomRepository.remove(room);
       return;
     }
