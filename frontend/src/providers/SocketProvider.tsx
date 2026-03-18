@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { Socket } from 'socket.io-client';
 import { getSocket, disconnectSocket } from '@/src/lib/socket';
 import { BACKEND_URL } from '@/src/lib/constants';
@@ -18,30 +18,52 @@ const SocketContext = createContext<SocketContextType>({
 export function SocketProvider({ children }: { children: ReactNode }) {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
+    const onConnect = () => setIsConnected(true);
+    const onDisconnect = () => setIsConnected(false);
+
     async function init() {
-      // player_uuid 쿠키를 먼저 생성한 후 소켓 연결
-      await fetch(`${BACKEND_URL}/player/me`, { credentials: 'include' });
+      // /player/me 호출로 서버가 player_uuid 쿠키를 설정하게 한 뒤 소켓 연결
+      try {
+        await fetch(`${BACKEND_URL}/player/me`, { credentials: 'include' });
+      } catch {
+        // fetch 실패 시에도 소켓 연결을 시도 (쿠키가 이미 존재할 수 있음)
+      }
 
       if (cancelled) return;
 
-      const s = getSocket();
-      setSocket(s);
+      const newSocket = getSocket();
+      socketRef.current = newSocket;
 
-      s.on('connect', () => setIsConnected(true));
-      s.on('disconnect', () => setIsConnected(false));
+      newSocket.on('connect', onConnect);
+      newSocket.on('disconnect', onDisconnect);
+      newSocket.connect();
 
-      s.connect();
+      if (cancelled) {
+        newSocket.off('connect', onConnect);
+        newSocket.off('disconnect', onDisconnect);
+        disconnectSocket();
+        return;
+      }
+
+      setSocket(newSocket);
     }
 
     init();
 
     return () => {
       cancelled = true;
+      const currentSocket = socketRef.current;
+      if (currentSocket) {
+        currentSocket.off('connect', onConnect);
+        currentSocket.off('disconnect', onDisconnect);
+      }
       disconnectSocket();
+      socketRef.current = null;
       setSocket(null);
       setIsConnected(false);
     };

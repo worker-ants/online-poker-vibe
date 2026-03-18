@@ -1,0 +1,83 @@
+{
+  "timestamp": "2026-03-18T17:29:28.946009",
+  "files": [
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/frontend/src/providers/SocketProvider.tsx",
+      "change_type": "Review",
+      "file_extension": "tsx"
+    },
+    {
+      "file_path": "/Volumes/project/private/online-poker-vibe/history/history.md",
+      "change_type": "Review",
+      "file_extension": "md"
+    }
+  ],
+  "total_elapsed_seconds": 87.81,
+  "agents": [
+    {
+      "name": "database",
+      "status": "success",
+      "elapsed_seconds": 8.63
+    },
+    {
+      "name": "api_contract",
+      "status": "success",
+      "elapsed_seconds": 22.13
+    },
+    {
+      "name": "scope",
+      "status": "success",
+      "elapsed_seconds": 22.99
+    },
+    {
+      "name": "concurrency",
+      "status": "success",
+      "elapsed_seconds": 24.09
+    },
+    {
+      "name": "requirement",
+      "status": "success",
+      "elapsed_seconds": 25.26
+    },
+    {
+      "name": "dependency",
+      "status": "success",
+      "elapsed_seconds": 26.92
+    },
+    {
+      "name": "architecture",
+      "status": "success",
+      "elapsed_seconds": 27.56
+    },
+    {
+      "name": "performance",
+      "status": "success",
+      "elapsed_seconds": 27.7
+    },
+    {
+      "name": "testing",
+      "status": "success",
+      "elapsed_seconds": 28.21
+    },
+    {
+      "name": "documentation",
+      "status": "success",
+      "elapsed_seconds": 28.21
+    },
+    {
+      "name": "security",
+      "status": "success",
+      "elapsed_seconds": 28.63
+    },
+    {
+      "name": "side_effect",
+      "status": "success",
+      "elapsed_seconds": 29.24
+    },
+    {
+      "name": "maintainability",
+      "status": "success",
+      "elapsed_seconds": 35.82
+    }
+  ]
+}
