@@ -140,6 +140,81 @@ export interface HandResult {
   }[];
 }
 
+export interface PlayerPublicState {
+  uuid: string;
+  nickname: string;
+  seatIndex: number;
+  chips: number;
+  currentBet: number;
+  isFolded: boolean;
+  isAllIn: boolean;
+  isDisconnected: boolean;
+  visibleCards: Card[];
+  cardCount: number;
+  isAI: boolean;
+}
+
+export interface PublicGameState {
+  phase: GamePhase;
+  communityCards: Card[];
+  pot: number;
+  sidePots: SidePot[];
+  currentPlayerUuid: string | null;
+  dealerUuid: string | null;
+  players: PlayerPublicState[];
+  handNumber: number;
+}
+
+export interface ActionRequired {
+  playerUuid: string;
+  validActions: BettingAction[];
+  callAmount: number;
+  minRaise: number;
+  maxRaise: number;
+  timeLimit: number;
+  isDraw?: boolean;
+}
+
+export interface ShowdownPlayerInfo {
+  uuid: string;
+  cards: Card[];
+  handRank: string;
+  handDescription: string;
+}
+
+export interface ShowdownWinner {
+  uuid: string;
+  amount: number;
+  potType: 'main' | 'side';
+}
+
+export interface ShowdownResult {
+  players: ShowdownPlayerInfo[];
+  winners: ShowdownWinner[];
+}
+
+export interface GameEndPlayerResult {
+  uuid: string;
+  nickname: string;
+  result: GameResult;
+  chipsDelta: number;
+  placement: number;
+  isAI: boolean;
+}
+
+export interface GameEndResult {
+  roomId: string;
+  gameId: string;
+  results: GameEndPlayerResult[];
+}
+
+export interface HandleActionResult {
+  handComplete: boolean;
+  gameOver: boolean;
+  showdown?: ShowdownResult;
+  gameResult?: GameEndResult;
+}
+
 export interface BlindLevel {
   level: number;
   smallBlind: number;

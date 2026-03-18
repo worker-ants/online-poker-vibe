@@ -9,6 +9,10 @@ import type { IPokerEngine } from './engine/poker-engine.interface.js';
 import type { IGameMode } from './engine/modes/game-mode.interface.js';
 import { isAiPlayer } from '../ai/ai-names.js';
 import type {
+  ActionRequired,
+  PublicGameState,
+  GameEndResult,
+  HandleActionResult,
   GameState,
   PlayerAction,
   PlayerSeat,
@@ -99,12 +103,7 @@ export class GameService implements OnModuleInit {
     playerUuid: string,
     action: PlayerAction,
     fromAiLoop = false,
-  ): Promise<{
-    handComplete: boolean;
-    gameOver: boolean;
-    showdown?: any;
-    gameResult?: any;
-  }> {
+  ): Promise<HandleActionResult> {
     // Prevent external clients from spoofing AI player actions
     if (!fromAiLoop && isAiPlayer(playerUuid)) {
       throw new Error('AI 플레이어의 액션을 직접 전송할 수 없습니다.');
@@ -140,7 +139,7 @@ export class GameService implements OnModuleInit {
       if (gameOver) {
         this.finishingRooms.add(roomId);
         try {
-          await this.finishGame(active, alivePlayers);
+          await this.finishGame(active);
         } finally {
           this.finishingRooms.delete(roomId);
         }
@@ -158,7 +157,7 @@ export class GameService implements OnModuleInit {
           })),
           winners: result.winners,
         },
-        gameResult: gameOver ? await this.getGameResult(active) : undefined,
+        gameResult: gameOver ? this.getGameResult(active) : undefined,
       };
     }
 
@@ -179,7 +178,7 @@ export class GameService implements OnModuleInit {
     active.state = active.engine.startHand(active.state);
   }
 
-  getPublicState(roomId: string): any {
+  getPublicState(roomId: string): PublicGameState | null {
     const active = this.activeGames.get(roomId);
     if (!active) return null;
 
@@ -219,7 +218,7 @@ export class GameService implements OnModuleInit {
     return result;
   }
 
-  getActionRequired(roomId: string): any {
+  getActionRequired(roomId: string): ActionRequired | null {
     const active = this.activeGames.get(roomId);
     if (!active) return null;
 
@@ -271,10 +270,7 @@ export class GameService implements OnModuleInit {
     return 'loss';
   }
 
-  private async finishGame(
-    active: ActiveGame,
-    alivePlayers: any[],
-  ): Promise<void> {
+  private async finishGame(active: ActiveGame): Promise<void> {
     const queryRunner =
       this.gameRepository.manager.connection.createQueryRunner();
     await queryRunner.connect();
@@ -292,9 +288,7 @@ export class GameService implements OnModuleInit {
         (a, b) => b.chips - a.chips,
       );
       const topChips = sortedPlayers[0]?.chips ?? 0;
-      const topCount = sortedPlayers.filter(
-        (p) => p.chips === topChips,
-      ).length;
+      const topCount = sortedPlayers.filter((p) => p.chips === topChips).length;
 
       // Save participants (human players only, with correct placements)
       const humanPlayers = sortedPlayers
@@ -328,7 +322,7 @@ export class GameService implements OnModuleInit {
     this.activeGames.delete(active.roomId);
   }
 
-  private async getGameResult(active: ActiveGame): Promise<any> {
+  private getGameResult(active: ActiveGame): GameEndResult {
     const startingChips = active.mode.getStartingChips();
 
     // Build results from in-memory state (includes both human and AI)
@@ -336,9 +330,7 @@ export class GameService implements OnModuleInit {
       (a, b) => b.chips - a.chips,
     );
     const topChips = sortedPlayers[0]?.chips ?? 0;
-    const topCount = sortedPlayers.filter(
-      (p) => p.chips === topChips,
-    ).length;
+    const topCount = sortedPlayers.filter((p) => p.chips === topChips).length;
 
     const results = sortedPlayers.map((p, i) => ({
       uuid: p.uuid,

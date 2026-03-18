@@ -13,14 +13,17 @@ export class CashGameMode implements IGameMode {
     this.bigBlind = bigBlind;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   getSmallBlind(_handNumber: number): number {
     return this.smallBlind;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   getBigBlind(_handNumber: number): number {
     return this.bigBlind;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   getAnte(_handNumber: number): number {
     return 0;
   }

@@ -56,7 +56,7 @@ export class TexasHoldemEngine implements IPokerEngine {
   }
 
   startHand(state: GameState): GameState {
-    const newState: GameState = JSON.parse(JSON.stringify(state));
+    const newState = JSON.parse(JSON.stringify(state)) as GameState;
     newState.handNumber++;
 
     // Reset player state for new hand
@@ -278,7 +278,7 @@ export class TexasHoldemEngine implements IPokerEngine {
   }
 
   private advancePhase(state: GameState): GameState {
-    const newState: GameState = JSON.parse(JSON.stringify(state));
+    const newState = JSON.parse(JSON.stringify(state)) as GameState;
 
     // If only one player left, go to showdown
     if (this.bettingRound.isOnlyOnePlayerRemaining(newState)) {

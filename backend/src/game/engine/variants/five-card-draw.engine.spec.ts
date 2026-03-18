@@ -90,9 +90,6 @@ describe('FiveCardDrawEngine', () => {
 
     // Handle draw action with discardIndices
     const currentUuid = state.players[state.currentPlayerIndex].uuid;
-    const playerBefore = state.players.find((p) => p.uuid === currentUuid)!;
-    const cardsBefore = [...playerBefore.holeCards];
-
     state = engine.handleAction(state, currentUuid, {
       type: 'draw',
       discardIndices: [0, 1],

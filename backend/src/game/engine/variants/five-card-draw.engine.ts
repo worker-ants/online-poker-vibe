@@ -56,7 +56,7 @@ export class FiveCardDrawEngine implements IPokerEngine {
   }
 
   startHand(state: GameState): GameState {
-    const newState: GameState = JSON.parse(JSON.stringify(state));
+    const newState = JSON.parse(JSON.stringify(state)) as GameState;
     newState.handNumber++;
 
     // Rotate dealer
@@ -264,7 +264,7 @@ export class FiveCardDrawEngine implements IPokerEngine {
     playerUuid: string,
     action: PlayerAction,
   ): GameState {
-    const newState: GameState = JSON.parse(JSON.stringify(state));
+    const newState = JSON.parse(JSON.stringify(state)) as GameState;
     const playerIndex = newState.players.findIndex(
       (p) => p.uuid === playerUuid,
     );
@@ -289,7 +289,7 @@ export class FiveCardDrawEngine implements IPokerEngine {
 
     // Remove discarded cards and draw new ones
     const deckCards = [...newState.deck];
-    const discarded: any[] = [];
+    const discarded: typeof player.holeCards = [];
 
     // Remove in reverse order to maintain indices
     const sortedIndices = [...discardIndices].sort((a, b) => b - a);
@@ -345,7 +345,7 @@ export class FiveCardDrawEngine implements IPokerEngine {
   }
 
   private advancePhase(state: GameState): GameState {
-    const newState: GameState = JSON.parse(JSON.stringify(state));
+    const newState = JSON.parse(JSON.stringify(state)) as GameState;
 
     if (this.bettingRound.isOnlyOnePlayerRemaining(newState)) {
       newState.phase = 'showdown';

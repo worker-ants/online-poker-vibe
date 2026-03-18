@@ -20,7 +20,7 @@ export class PokerEngineFactory {
       case 'seven-card-stud':
         return new SevenCardStudEngine();
       default:
-        throw new Error(`지원하지 않는 포커 변형입니다: ${variant}`);
+        throw new Error(`지원하지 않는 포커 변형입니다: ${variant as string}`);
     }
   }
 
@@ -47,7 +47,7 @@ export class PokerEngineFactory {
           settings.bigBlind,
         );
       default:
-        throw new Error(`지원하지 않는 게임 모드입니다: ${mode}`);
+        throw new Error(`지원하지 않는 게임 모드입니다: ${mode as string}`);
     }
   }
 }

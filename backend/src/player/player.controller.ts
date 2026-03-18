@@ -11,7 +11,9 @@ export class PlayerController {
   constructor(private readonly playerService: PlayerService) {}
 
   private getOrCreateUuid(req: Request, res: Response): string {
-    let uuid = req.cookies?.[COOKIE_NAME];
+    let uuid = (req.cookies as Record<string, string> | undefined)?.[
+      COOKIE_NAME
+    ];
     if (!uuid) {
       uuid = uuidv4();
       res.cookie(COOKIE_NAME, uuid, {

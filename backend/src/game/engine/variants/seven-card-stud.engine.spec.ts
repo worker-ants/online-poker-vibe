@@ -61,7 +61,6 @@ describe('SevenCardStudEngine', () => {
     expect(currentPlayer.isFolded).toBeFalsy();
 
     // The current player should have the lowest visible card among all players
-    const activePlayers = state.players.filter((p) => !p.isFolded);
     const currentVisible = currentPlayer.visibleCards[0];
     expect(currentVisible).toBeDefined();
   });

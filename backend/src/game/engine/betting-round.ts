@@ -240,6 +240,6 @@ export class BettingRound {
   }
 
   private cloneState(state: GameState): GameState {
-    return JSON.parse(JSON.stringify(state));
+    return JSON.parse(JSON.stringify(state)) as GameState;
   }
 }

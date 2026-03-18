@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { ActionRequired } from '@/src/lib/types';
 import Button from '@/src/components/shared/Button';
 
@@ -11,10 +11,12 @@ interface BettingControlsProps {
 
 export default function BettingControls({ actionRequired, onAction }: BettingControlsProps) {
   const [raiseAmount, setRaiseAmount] = useState(actionRequired.minRaise);
+  const [prevMinRaise, setPrevMinRaise] = useState(actionRequired.minRaise);
 
-  useEffect(() => {
+  if (prevMinRaise !== actionRequired.minRaise) {
+    setPrevMinRaise(actionRequired.minRaise);
     setRaiseAmount(actionRequired.minRaise);
-  }, [actionRequired.minRaise]);
+  }
 
   const { validActions, callAmount, minRaise, maxRaise } = actionRequired;
 

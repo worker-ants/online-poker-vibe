@@ -53,7 +53,7 @@ export class Room {
   roomPlayers: RoomPlayer[];
 
   getSettings(): RoomSettings {
-    return JSON.parse(this.settings);
+    return JSON.parse(this.settings) as RoomSettings;
   }
 
   setSettings(settings: RoomSettings): void {

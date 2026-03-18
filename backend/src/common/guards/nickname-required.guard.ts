@@ -13,7 +13,8 @@ export class NicknameRequiredGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
-    const uuid = request.cookies?.player_uuid;
+    const uuid = (request.cookies as Record<string, string> | undefined)
+      ?.player_uuid;
 
     if (!uuid) {
       throw new ForbiddenException('플레이어 식별 쿠키가 없습니다.');

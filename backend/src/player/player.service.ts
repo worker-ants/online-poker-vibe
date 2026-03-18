@@ -20,10 +20,11 @@ export class PlayerService {
       player = this.playerRepository.create({ uuid, nickname: null });
       try {
         await this.playerRepository.save(player);
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const err = error as { code?: string; name?: string };
         if (
-          error?.code === 'SQLITE_CONSTRAINT' ||
-          error?.name === 'QueryFailedError'
+          err.code === 'SQLITE_CONSTRAINT' ||
+          err.name === 'QueryFailedError'
         ) {
           player = await this.findByUuid(uuid);
           if (!player) throw error;
@@ -59,11 +60,9 @@ export class PlayerService {
     player.nickname = trimmed;
     try {
       return await this.playerRepository.save(player);
-    } catch (error: any) {
-      if (
-        error?.code === 'SQLITE_CONSTRAINT' ||
-        error?.name === 'QueryFailedError'
-      ) {
+    } catch (error: unknown) {
+      const err = error as { code?: string; name?: string };
+      if (err.code === 'SQLITE_CONSTRAINT' || err.name === 'QueryFailedError') {
         throw new BadRequestException('이미 사용 중인 닉네임입니다.');
       }
       throw error;

@@ -34,13 +34,13 @@ const mockQueryRunner = {
   release: jest.fn(),
   manager: {
     update: jest.fn(),
-    save: jest.fn((entity: any) => Promise.resolve(entity)),
+    save: jest.fn((entity: unknown) => Promise.resolve(entity)),
   },
 };
 
 const mockGameRepository = {
-  create: jest.fn((entity: any) => entity),
-  save: jest.fn((entity: any) => Promise.resolve(entity)),
+  create: jest.fn((entity: unknown) => entity),
+  save: jest.fn((entity: unknown) => Promise.resolve(entity)),
   update: jest.fn(() => Promise.resolve()),
   find: jest.fn(),
   manager: {
@@ -51,8 +51,8 @@ const mockGameRepository = {
 };
 
 const mockParticipantRepository = {
-  create: jest.fn((entity: any) => entity),
-  save: jest.fn((entity: any) => Promise.resolve(entity)),
+  create: jest.fn((entity: unknown) => entity),
+  save: jest.fn((entity: unknown) => Promise.resolve(entity)),
   find: jest.fn(() => Promise.resolve([])),
 };
 

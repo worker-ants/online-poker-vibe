@@ -1,4 +1,4 @@
-import type { Card, Rank } from '../../common/types/card.types.js';
+import type { Card } from '../../common/types/card.types.js';
 import { RANK_VALUES } from '../../common/types/card.types.js';
 import {
   HandCategory,

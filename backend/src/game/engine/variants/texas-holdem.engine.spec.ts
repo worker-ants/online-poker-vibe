@@ -1,15 +1,10 @@
 import { TexasHoldemEngine } from './texas-holdem.engine.js';
 import { CashGameMode } from '../modes/cash-game.mode.js';
-import { TournamentMode } from '../modes/tournament.mode.js';
 import type { PlayerSeat } from '../../../common/types/game.types.js';
 
 describe('TexasHoldemEngine', () => {
   const engine = new TexasHoldemEngine();
   const cashMode = new CashGameMode(1000, 10, 20);
-  const tournamentMode = new TournamentMode(1000, [
-    { level: 1, smallBlind: 10, bigBlind: 20, handsPerLevel: 10 },
-    { level: 2, smallBlind: 20, bigBlind: 40, handsPerLevel: 10 },
-  ]);
 
   const players: PlayerSeat[] = [
     { uuid: 'p1', nickname: 'Player1', seatIndex: 0, chips: 1000 },

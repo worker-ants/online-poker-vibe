@@ -18,8 +18,8 @@ export default function PlayerSeat({
   holeCards,
   isMe,
 }: PlayerSeatProps) {
-  const cards = isMe ? holeCards : undefined;
-  const cardCount = isMe ? (holeCards?.length ?? 0) : player.cardCount;
+  const cards = isMe && holeCards && holeCards.length > 0 ? holeCards : undefined;
+  const cardCount = cards ? cards.length : player.cardCount;
 
   return (
     <div

@@ -147,11 +147,9 @@ export class RoomService {
 
     try {
       return await this.roomPlayerRepository.save(roomPlayer);
-    } catch (error: any) {
-      if (
-        error?.code === 'SQLITE_CONSTRAINT' ||
-        error?.name === 'QueryFailedError'
-      ) {
+    } catch (error: unknown) {
+      const err = error as { code?: string; name?: string };
+      if (err.code === 'SQLITE_CONSTRAINT' || err.name === 'QueryFailedError') {
         throw new BadRequestException(
           '좌석 배정에 실패했습니다. 다시 시도해주세요.',
         );

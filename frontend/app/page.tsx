@@ -42,7 +42,7 @@ export default function LobbyPage() {
   );
 
   const handleCreate = useCallback(
-    (data: any) => {
+    (data: { name: string; variant: string; mode: string; maxPlayers: number; settings: { startingChips: number; smallBlind: number; bigBlind: number } }) => {
       if (!socket || !nickname) {
         addToast('닉네임을 먼저 설정해주세요.', 'error');
         return;

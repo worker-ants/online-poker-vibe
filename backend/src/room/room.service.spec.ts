@@ -13,17 +13,17 @@ const mockQueryRunner = {
   rollbackTransaction: jest.fn(),
   release: jest.fn(),
   manager: {
-    save: jest.fn((entity: any) => Promise.resolve(entity)),
+    save: jest.fn((entity: unknown) => Promise.resolve(entity)),
   },
 };
 
 const mockRoomRepository = {
-  create: jest.fn((entity: any) => entity),
-  save: jest.fn((entity: any) => Promise.resolve(entity)),
+  create: jest.fn((entity: unknown) => entity),
+  save: jest.fn((entity: unknown) => Promise.resolve(entity)),
   update: jest.fn(() => Promise.resolve()),
   find: jest.fn(() => Promise.resolve([])),
   findOne: jest.fn(),
-  remove: jest.fn((entity: any) => Promise.resolve(entity)),
+  remove: jest.fn((entity: unknown) => Promise.resolve(entity)),
   manager: {
     connection: {
       createQueryRunner: jest.fn(() => mockQueryRunner),
@@ -32,11 +32,11 @@ const mockRoomRepository = {
 };
 
 const mockRoomPlayerRepository = {
-  create: jest.fn((entity: any) => entity),
-  save: jest.fn((entity: any) => Promise.resolve(entity)),
+  create: jest.fn((entity: unknown) => entity),
+  save: jest.fn((entity: unknown) => Promise.resolve(entity)),
   find: jest.fn(() => Promise.resolve([])),
   findOne: jest.fn(),
-  remove: jest.fn((entity: any) => Promise.resolve(entity)),
+  remove: jest.fn((entity: unknown) => Promise.resolve(entity)),
 };
 
 const mockPlayerService = {

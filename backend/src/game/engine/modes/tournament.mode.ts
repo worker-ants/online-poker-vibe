@@ -22,6 +22,7 @@ export class TournamentMode implements IGameMode {
     return level.bigBlind;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   getAnte(_handNumber: number): number {
     return 0;
   }

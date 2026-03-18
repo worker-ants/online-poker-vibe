@@ -47,22 +47,35 @@ export class HallOfFameService {
     pagination: { page: number; limit: number; total: number };
   }> {
     // Use raw query for the aggregation
-    const countResult = await this.participantRepository
-      .createQueryBuilder('gp')
-      .select('COUNT(DISTINCT gp.playerUuid)', 'count')
-      .innerJoin('gp.game', 'g')
-      .where('g.status IN (:...statuses)', {
-        statuses: ['completed', 'abandoned'],
-      })
-      .andWhere('gp.playerUuid NOT LIKE :aiPrefix', {
-        aiPrefix: `${AI_UUID_PREFIX}%`,
-      })
-      .getRawOne();
+    const countResult: { count?: string } | undefined =
+      await this.participantRepository
+        .createQueryBuilder('gp')
+        .select('COUNT(DISTINCT gp.playerUuid)', 'count')
+        .innerJoin('gp.game', 'g')
+        .where('g.status IN (:...statuses)', {
+          statuses: ['completed', 'abandoned'],
+        })
+        .andWhere('gp.playerUuid NOT LIKE :aiPrefix', {
+          aiPrefix: `${AI_UUID_PREFIX}%`,
+        })
+        .getRawOne();
 
     const total = parseInt(countResult?.count ?? '0', 10);
     const offset = (page - 1) * limit;
 
-    const results = await this.participantRepository
+    interface RawRankingRow {
+      uuid: string;
+      nickname: string | null;
+      totalGames: string;
+      wins: string;
+      draws: string;
+      losses: string;
+      abandonments: string;
+      winRate: string | null;
+      lastGameTime: string | null;
+    }
+
+    const results: RawRankingRow[] = await this.participantRepository
       .createQueryBuilder('gp')
       .select('gp.playerUuid', 'uuid')
       .addSelect('p.nickname', 'nickname')
@@ -99,7 +112,7 @@ export class HallOfFameService {
       .limit(limit)
       .getRawMany();
 
-    const data: RankingEntry[] = results.map((r, i) => ({
+    const data: RankingEntry[] = results.map((r: RawRankingRow, i: number) => ({
       rank: offset + i + 1,
       uuid: r.uuid,
       nickname: r.nickname ?? 'Unknown',

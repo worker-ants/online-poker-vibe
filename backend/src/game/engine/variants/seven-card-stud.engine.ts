@@ -4,13 +4,11 @@ import type {
   GameState,
   PlayerAction,
   PlayerSeat,
-  PlayerState,
   HandResult,
   BettingAction,
   StudPhase,
 } from '../../../common/types/game.types.js';
 import { RANK_VALUES, SUIT_VALUES } from '../../../common/types/card.types.js';
-import type { Card } from '../../../common/types/card.types.js';
 import { Deck } from '../deck.js';
 import { HandEvaluator } from '../hand-evaluator.js';
 import { BettingRound } from '../betting-round.js';
@@ -58,7 +56,7 @@ export class SevenCardStudEngine implements IPokerEngine {
   }
 
   startHand(state: GameState): GameState {
-    const newState: GameState = JSON.parse(JSON.stringify(state));
+    const newState = JSON.parse(JSON.stringify(state)) as GameState;
     newState.handNumber++;
 
     // Reset players
@@ -213,7 +211,7 @@ export class SevenCardStudEngine implements IPokerEngine {
   }
 
   private advancePhase(state: GameState): GameState {
-    const newState: GameState = JSON.parse(JSON.stringify(state));
+    const newState = JSON.parse(JSON.stringify(state)) as GameState;
 
     if (this.bettingRound.isOnlyOnePlayerRemaining(newState)) {
       newState.phase = 'showdown';

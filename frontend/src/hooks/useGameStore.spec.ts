@@ -1,5 +1,12 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useGameStore } from './useGameStore';
+import type {
+  RoomInfo,
+  RoomState,
+  PublicGameState,
+  Card,
+  ActionRequired,
+} from '@/src/lib/types';
 
 describe('useGameStore', () => {
   beforeEach(() => {
@@ -18,39 +25,43 @@ describe('useGameStore', () => {
   });
 
   it('should set room list', () => {
-    const rooms = [{ id: '1', name: 'Test', variant: 'texas-holdem', mode: 'cash', status: 'waiting', playerCount: 2, maxPlayers: 6, hostNickname: 'Host', createdAt: '' }];
-    useGameStore.getState().setRoomList(rooms as any);
+    const rooms: RoomInfo[] = [{ id: '1', name: 'Test', variant: 'texas-holdem', mode: 'cash', status: 'waiting', playerCount: 2, maxPlayers: 6, hostNickname: 'Host', createdAt: '' }];
+    useGameStore.getState().setRoomList(rooms);
     expect(useGameStore.getState().roomList).toEqual(rooms);
   });
 
   it('should set current room', () => {
-    const room = { roomId: 'r1', name: 'Test', variant: 'texas-holdem', mode: 'cash', status: 'waiting', hostUuid: 'p1', maxPlayers: 6, settings: {}, players: [] };
-    useGameStore.getState().setCurrentRoom(room as any);
+    const room: RoomState = { roomId: 'r1', name: 'Test', variant: 'texas-holdem', mode: 'cash', status: 'waiting', hostUuid: 'p1', maxPlayers: 6, players: [] };
+    useGameStore.getState().setCurrentRoom(room);
     expect(useGameStore.getState().currentRoom).toEqual(room);
   });
 
   it('should set game state', () => {
-    const gameState = { phase: 'pre-flop', communityCards: [], pot: 100, sidePots: [], currentPlayerUuid: 'p1', dealerUuid: 'p2', players: [], handNumber: 1 };
-    useGameStore.getState().setGameState(gameState as any);
+    const gameState: PublicGameState = { phase: 'pre-flop', communityCards: [], pot: 100, sidePots: [], currentPlayerUuid: 'p1', dealerUuid: 'p2', players: [], handNumber: 1 };
+    useGameStore.getState().setGameState(gameState);
     expect(useGameStore.getState().gameState).toEqual(gameState);
   });
 
   it('should set hole cards', () => {
-    const cards = [{ suit: 'hearts', rank: 'A' }, { suit: 'spades', rank: 'K' }];
-    useGameStore.getState().setHoleCards(cards as any);
+    const cards: Card[] = [{ suit: 'hearts', rank: 'A' }, { suit: 'spades', rank: 'K' }];
+    useGameStore.getState().setHoleCards(cards);
     expect(useGameStore.getState().holeCards).toEqual(cards);
   });
 
   it('should set action required', () => {
-    const action = { playerUuid: 'p1', validActions: ['fold', 'call'], callAmount: 20, minRaise: 40, maxRaise: 1000, timeLimit: 30 };
-    useGameStore.getState().setActionRequired(action as any);
+    const action: ActionRequired = { playerUuid: 'p1', validActions: ['fold', 'call'], callAmount: 20, minRaise: 40, maxRaise: 1000, timeLimit: 30 };
+    useGameStore.getState().setActionRequired(action);
     expect(useGameStore.getState().actionRequired).toEqual(action);
   });
 
   it('should reset to initial state', () => {
-    useGameStore.getState().setCurrentRoom({ roomId: 'r1' } as any);
-    useGameStore.getState().setGameState({ phase: 'flop' } as any);
-    useGameStore.getState().setHoleCards([{ suit: 'hearts', rank: 'A' }] as any);
+    const room: RoomState = { roomId: 'r1', name: 'Test', variant: 'texas-holdem', mode: 'cash', status: 'waiting', hostUuid: 'p1', maxPlayers: 6, players: [] };
+    const gameState: PublicGameState = { phase: 'flop', communityCards: [], pot: 0, sidePots: [], currentPlayerUuid: null, dealerUuid: null, players: [], handNumber: 1 };
+    const cards: Card[] = [{ suit: 'hearts', rank: 'A' }];
+
+    useGameStore.getState().setCurrentRoom(room);
+    useGameStore.getState().setGameState(gameState);
+    useGameStore.getState().setHoleCards(cards);
 
     useGameStore.getState().reset();
 
@@ -61,8 +72,8 @@ describe('useGameStore', () => {
   });
 
   it('should not reset roomList on reset', () => {
-    const rooms = [{ id: '1', name: 'Test' }];
-    useGameStore.getState().setRoomList(rooms as any);
+    const rooms: RoomInfo[] = [{ id: '1', name: 'Test', variant: 'texas-holdem', mode: 'cash', status: 'waiting', playerCount: 0, maxPlayers: 6, hostNickname: '', createdAt: '' }];
+    useGameStore.getState().setRoomList(rooms);
     useGameStore.getState().reset();
     expect(useGameStore.getState().roomList).toEqual(rooms);
   });

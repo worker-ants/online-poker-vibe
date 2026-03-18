@@ -49,7 +49,7 @@ export default function GamePage() {
     if (!socket || !roomId) return;
 
     // Join room (idempotent)
-    socket.emit(WS_EVENTS.ROOM_JOIN, { roomId }, (response: any) => {
+    socket.emit(WS_EVENTS.ROOM_JOIN, { roomId }, (response: { success: boolean; room?: RoomState }) => {
       if (response.success && response.room) {
         setCurrentRoom(response.room);
       }

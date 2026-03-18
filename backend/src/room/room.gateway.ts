@@ -8,14 +8,18 @@ import {
   MessageBody,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import * as cookie from 'cookie-parser';
 import { WS_EVENTS } from '../common/types/events.types.js';
 import { RoomService } from './room.service.js';
 import { PlayerService } from '../player/player.service.js';
 import { GameService } from '../game/game.service.js';
 import { AiPlayerService } from '../ai/ai-player.service.js';
 import { isAiPlayer } from '../ai/ai-names.js';
-import type { PlayerSeat, BettingAction } from '../common/types/game.types.js';
+import type { CreateRoomDto } from './create-room.dto.js';
+import type {
+  PlayerSeat,
+  BettingAction,
+  PlayerAction,
+} from '../common/types/game.types.js';
 
 function parseCookies(cookieHeader: string): Record<string, string> {
   const cookies: Record<string, string> = {};
@@ -25,6 +29,11 @@ function parseCookies(cookieHeader: string): Record<string, string> {
     cookies[key.trim()] = decodeURIComponent(val.join('=').trim());
   });
   return cookies;
+}
+
+function getErrorMessage(e: unknown): string {
+  if (e instanceof Error) return e.message;
+  return String(e);
 }
 
 @WebSocketGateway({
@@ -103,8 +112,8 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       const player = await this.playerService.setNickname(uuid, data.nickname);
       return { success: true, nickname: player.nickname };
-    } catch (e: any) {
-      return { success: false, error: e.message };
+    } catch (e: unknown) {
+      return { success: false, error: getErrorMessage(e) };
     }
   }
 
@@ -116,22 +125,22 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage(WS_EVENTS.ROOM_CREATE)
   async handleRoomCreate(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: any,
+    @MessageBody() data: CreateRoomDto,
   ) {
     const uuid = this.getPlayerUuid(client);
     if (!uuid) return { success: false, error: '인증이 필요합니다.' };
 
     try {
       const room = await this.roomService.createRoom(uuid, data);
-      client.join(room.id);
+      void client.join(room.id);
 
       // Broadcast updated room list
       const rooms = await this.roomService.getWaitingRooms();
       this.server.emit(WS_EVENTS.ROOM_LIST_UPDATE, rooms);
 
       return { success: true, roomId: room.id };
-    } catch (e: any) {
-      return { success: false, error: e.message };
+    } catch (e: unknown) {
+      return { success: false, error: getErrorMessage(e) };
     }
   }
 
@@ -145,7 +154,7 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     try {
       await this.roomService.joinRoom(data.roomId, uuid);
-      client.join(data.roomId);
+      void client.join(data.roomId);
 
       const roomState = await this.roomService.getRoomState(data.roomId);
       this.server.to(data.roomId).emit(WS_EVENTS.ROOM_UPDATED, roomState);
@@ -155,8 +164,8 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.server.emit(WS_EVENTS.ROOM_LIST_UPDATE, rooms);
 
       return { success: true, room: roomState };
-    } catch (e: any) {
-      return { success: false, error: e.message };
+    } catch (e: unknown) {
+      return { success: false, error: getErrorMessage(e) };
     }
   }
 
@@ -169,7 +178,7 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!uuid) return;
 
     await this.roomService.leaveRoom(data.roomId, uuid);
-    client.leave(data.roomId);
+    void client.leave(data.roomId);
 
     const roomState = await this.roomService.getRoomState(data.roomId);
     if (roomState) {
@@ -216,8 +225,8 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
 
       return { success: true };
-    } catch (e: any) {
-      return { success: false, error: e.message };
+    } catch (e: unknown) {
+      return { success: false, error: getErrorMessage(e) };
     }
   }
 
@@ -241,7 +250,7 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
         });
         // Remove from Socket.IO room
         const targetSocket = this.server.sockets.sockets.get(targetSocketId);
-        targetSocket?.leave(data.roomId);
+        void targetSocket?.leave(data.roomId);
       }
 
       const roomState = await this.roomService.getRoomState(data.roomId);
@@ -251,8 +260,8 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.server.emit(WS_EVENTS.ROOM_LIST_UPDATE, rooms);
 
       return { success: true };
-    } catch (e: any) {
-      return { success: false, error: e.message };
+    } catch (e: unknown) {
+      return { success: false, error: getErrorMessage(e) };
     }
   }
 
@@ -271,11 +280,16 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!uuid) return { success: false, error: '인증이 필요합니다.' };
 
     try {
-      const result = await this.gameService.handleAction(data.roomId, uuid, {
-        type: data.action as any,
+      const playerAction: PlayerAction = {
+        type: data.action as BettingAction | 'draw',
         amount: data.amount,
         discardIndices: data.discardIndices,
-      });
+      };
+      const result = await this.gameService.handleAction(
+        data.roomId,
+        uuid,
+        playerAction,
+      );
 
       // Broadcast public state
       const publicState = this.gameService.getPublicState(data.roomId);
@@ -289,7 +303,7 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
 
       // Send private cards to each player
-      await this.sendPrivateStates(data.roomId);
+      this.sendPrivateStates(data.roomId);
 
       // Check if hand is complete
       if (result.handComplete) {
@@ -305,7 +319,7 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
           this.aiPlayersMap.delete(data.roomId);
         } else {
           // Start next hand after a delay
-          setTimeout(() => this.startNextHand(data.roomId), 3000);
+          setTimeout(() => void this.startNextHand(data.roomId), 3000);
         }
       } else {
         // Process AI turns or notify human player
@@ -313,8 +327,8 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
 
       return { success: true };
-    } catch (e: any) {
-      return { success: false, error: e.message };
+    } catch (e: unknown) {
+      return { success: false, error: getErrorMessage(e) };
     }
   }
 
@@ -339,7 +353,7 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(roomId).emit(WS_EVENTS.GAME_STATE, publicState);
 
     // Send private cards to each player
-    await this.sendPrivateStates(roomId);
+    this.sendPrivateStates(roomId);
 
     // Broadcast updated room list (room is now playing)
     const rooms = await this.roomService.getWaitingRooms();
@@ -356,7 +370,7 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const publicState = this.gameService.getPublicState(roomId);
       this.server.to(roomId).emit(WS_EVENTS.GAME_STATE, publicState);
 
-      await this.sendPrivateStates(roomId);
+      this.sendPrivateStates(roomId);
 
       // Process AI turns or notify human player
       await this.processAiTurnsOrNotify(roomId);
@@ -383,10 +397,8 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
         if (!actionRequired) break;
 
         // If not an AI player, notify human and stop
-        if (!isAiPlayer(actionRequired.playerUuid as string)) {
-          const socketId = this.getPlayerSocket(
-            actionRequired.playerUuid as string,
-          );
+        if (!isAiPlayer(actionRequired.playerUuid)) {
+          const socketId = this.getPlayerSocket(actionRequired.playerUuid);
           if (socketId) {
             this.server
               .to(socketId)
@@ -399,11 +411,11 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
         const gameState = this.gameService.getGameState(roomId);
         if (!gameState) break;
 
-        let aiAction;
+        let aiAction: PlayerAction;
         if (actionRequired.isDraw) {
           // Five Card Draw draw phase
           const player = gameState.players.find(
-            (p) => p.uuid === (actionRequired.playerUuid as string),
+            (p) => p.uuid === actionRequired.playerUuid,
           );
           const discardIndices = player
             ? this.aiPlayerService.getDiscardIndices(player.holeCards)
@@ -412,12 +424,12 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
         } else {
           aiAction = this.aiPlayerService.decideAction(
             gameState,
-            actionRequired.playerUuid as string,
+            actionRequired.playerUuid,
             {
-              actions: actionRequired.validActions as BettingAction[],
-              callAmount: actionRequired.callAmount as number,
-              minRaise: actionRequired.minRaise as number,
-              maxRaise: actionRequired.maxRaise as number,
+              actions: actionRequired.validActions,
+              callAmount: actionRequired.callAmount,
+              minRaise: actionRequired.minRaise,
+              maxRaise: actionRequired.maxRaise,
             },
             gameState.variant,
           );
@@ -425,7 +437,7 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
         const result = await this.gameService.handleAction(
           roomId,
-          actionRequired.playerUuid as string,
+          actionRequired.playerUuid,
           aiAction,
           true, // fromAiLoop
         );
@@ -438,12 +450,10 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
           action: aiAction.type,
           amount: aiAction.amount,
         });
-        await this.sendPrivateStates(roomId);
+        this.sendPrivateStates(roomId);
 
         if (result.handComplete) {
-          this.server
-            .to(roomId)
-            .emit(WS_EVENTS.GAME_SHOWDOWN, result.showdown);
+          this.server.to(roomId).emit(WS_EVENTS.GAME_SHOWDOWN, result.showdown);
 
           if (result.gameOver) {
             this.server
@@ -452,12 +462,12 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
             await this.roomService.setRoomStatus(roomId, 'finished');
             this.aiPlayersMap.delete(roomId);
           } else {
-            setTimeout(() => this.startNextHand(roomId), 3000);
+            setTimeout(() => void this.startNextHand(roomId), 3000);
           }
           break;
         }
       }
-    } catch (err) {
+    } catch {
       this.server.to(roomId).emit(WS_EVENTS.ERROR, {
         code: 'AI_ERROR',
         message: 'AI 플레이어 처리 중 오류가 발생했습니다.',
@@ -467,7 +477,7 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  private async sendPrivateStates(roomId: string) {
+  private sendPrivateStates(roomId: string) {
     const privateStates = this.gameService.getPrivateStates(roomId);
     if (!privateStates) return;
 
